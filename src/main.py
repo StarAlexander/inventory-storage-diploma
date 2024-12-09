@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from datetime import datetime
 
-from exceptions import AdminAlreadyExistsError
+from src.exceptions import AdminAlreadyExistsError
 from src.database import engine
 from src.users import UserService, users_router
 

@@ -22,19 +22,45 @@ async def create_new_user(user_create: UserCreate):
 @router.get("/users/{username}", response_model=UserResponse)
 async def get_user(username: str):
     """Возвращает конкретного пользователя"""
-    pass
+    try:
+        user = await UserService.get_user_by_username(username)
+        return user
+    except HTTPException as e:
+        logger.error(f"Ошибка при получении пользователя \"{username}\": {str(e)}")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=str(e))
+
+    except Exception as e:
+        logger.error(f"Неизвестная ошибка при получении пользователя \"{username}\": {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,detail=str(e))
+    
 
 @router.get("/users/", response_model=list[UserResponse])
 async def get_users():
     """Возвращает список пользователей"""
-    pass
+    try:
+        users = await UserService.get_users()
+        return users
+    except Exception as e:
+        logger.error(f"Неизвестная ошибка при получении пользователей: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
 
 @router.patch("/users/{username}", response_model=UserResponse)
 async def update_user(username: str, user_create: UserCreate):
     """Обновляет пользователя"""
-    pass
+    try:
+        updated = await UserService.update_user(username,user_create)
+        return updated
+    except Exception as e:
+        logger.error(f"Неизвестная ошибка при получении пользователя: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,detail=str(e))
+
 
 @router.delete("/users/{username}")
 async def delete_user(username: str):
     """Удаляет пользователя"""
-    pass
+    try:
+        await UserService.delete_user(username)
+    except Exception as e:
+        logger.error(f"Неизвестная ошибка при удалении пользователя: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,detail=str(e))

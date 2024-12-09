@@ -35,3 +35,43 @@ class UserService:
             await repo.create_user(user)
             logger.info(f"Пользователь {user.username} успешно создан.")
             return user
+    
+    @staticmethod
+    async def get_users() -> list[User]:
+        logger.info(f"Попытка получить пользователей")
+        async with SessionLocal() as session:
+            repo = UserRepository(session)
+            users = await repo.get_users()
+            if not users:
+                raise HTTPException(status_code=500,detail="Unknown server exception")
+            return users
+
+
+    @staticmethod
+    async def get_user_by_username(username:str) -> User:
+        logger.info(f"Попытка получить пользователя по username: {username}")
+        async with SessionLocal() as session:
+            repo = UserRepository(session)
+            user = await repo.get_user_by_username(username)
+            if not user:
+                raise HTTPException(status_code=404, detail="No such user")
+            return user
+        
+    @staticmethod
+    async def update_user(username:str, user:UserCreate) -> User:
+        logger.info(f"Попытка обновить пользователя")
+        async with SessionLocal() as session:
+            repo = UserRepository(session)
+            updated = await repo.update_user(username,user)
+            
+            if not updated:
+                raise HTTPException(status_code=500,detail="failed to update")
+            return updated
+    
+    @staticmethod
+    async def delete_user(username:str):
+        logger.info(f"Попытка удалить пользователя: {username}")
+        async with SessionLocal() as session:
+            repo = UserRepository(session)
+            await repo.delete_user(username)
+
