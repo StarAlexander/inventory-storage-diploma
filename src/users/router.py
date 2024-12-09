@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, status
-from .schemas import UserCreate, UserResponse
+from .schemas import UserCreate, UserResponse, UserUpdate
 from .service import UserService
 import logging
 
@@ -45,11 +45,11 @@ async def get_users():
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
-@router.patch("/users/{username}", response_model=UserResponse)
-async def update_user(username: str, user_create: UserCreate):
+@router.put("/users/", response_model=UserResponse)
+async def update_user(user_update: UserUpdate):
     """Обновляет пользователя"""
     try:
-        updated = await UserService.update_user(username,user_create)
+        updated = await UserService.update_user(user_update)
         return updated
     except Exception as e:
         logger.error(f"Неизвестная ошибка при получении пользователя: {str(e)}")
@@ -61,6 +61,7 @@ async def delete_user(username: str):
     """Удаляет пользователя"""
     try:
         await UserService.delete_user(username)
+        return {"Deleted": True}
     except Exception as e:
         logger.error(f"Неизвестная ошибка при удалении пользователя: {str(e)}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,detail=str(e))

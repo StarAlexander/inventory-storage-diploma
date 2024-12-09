@@ -1,6 +1,8 @@
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select,update,delete
-from .schemas import UserCreate
+
+from .schemas import UserCreate, UserUpdate
 from src.exceptions import AdminAlreadyExistsError
 from .models import User
 
@@ -19,22 +21,39 @@ class UserRepository:
     async def create_user(self, user):
         self.session.add(user)
         await self.session.commit()
+        await self.session.refresh(user)
 
     async def create_admin_user(self):
-        admin_user = await self.get_user_by_username("admin")
+        try:
+            admin_user = await self.get_user_by_username("admin")
 
-        if admin_user:
-            raise AdminAlreadyExistsError("Пользователь с именем 'admin' уже существует.")
+            if admin_user:
+                raise AdminAlreadyExistsError("Пользователь с именем 'admin' уже существует.")
 
-        admin_user = User(username="admin")
-        admin_user.set_password("admin")
-        await self.create_user(admin_user)
-        return admin_user
-    
-    async def update_user(self,username:str, user:UserCreate) -> User:
-        old = await self.get_user_by_username(username)
-        old.set_password(user.password)
-        res = await self.session.execute(update(User).where(User.username==username).values(dict(username=user.username,password_hash=old.password_hash)).returning(User))
+            admin_user = User(
+                username="admin",
+                first_name="Admin",
+                last_name="User",
+                email="admin@example.com",
+                phone=None,
+                status=True,
+                is_system=True,
+            )
+
+            admin_user.set_password("admin")
+            await self.create_user(admin_user)
+            return admin_user
+        except IntegrityError as e:
+            raise ValueError("Ошибка при создании пользователя-администратора.") from e
+
+    async def update_user(self, user:UserUpdate) -> User:
+        old = await self.get_user_by_username(user.username)
+
+        # Подтверждение смены пароля
+        if user.password:
+            old.set_password(user.password)
+
+        res = await self.session.execute(update(User).where(User.username==user.username).values(dict(username=user.username,password_hash=old.password_hash)).returning(User))
         await self.session.commit()
         return res.scalars().first()
 
