@@ -1,0 +1,2 @@
+class AdminAlreadyExistsError(Exception):
+    pass
