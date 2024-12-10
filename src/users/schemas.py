@@ -13,6 +13,7 @@ class UserBase(BaseModel):
     phone: str | None = Field(None, pattern=r"^\+?[0-9]+$", description="Valid phone number")
     is_system: bool = False
     hired_at: datetime | None = None
+    
 
     @field_validator("username")
     def validate_username(cls, value):

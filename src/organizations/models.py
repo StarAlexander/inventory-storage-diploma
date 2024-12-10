@@ -17,6 +17,6 @@ class Organization(Base):
     departments = relationship("Department", back_populates="organization")
 
     __table_args__ = (
-        CheckConstraint("phone ~ '^[0-9]+$'", name="check_phone_format"),
+        CheckConstraint("phone ~ '^\\+?[0-9]+$'", name="check_phone_format"),
         CheckConstraint("email ~ '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'", name="check_email_format"),
     )

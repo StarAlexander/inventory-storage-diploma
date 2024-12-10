@@ -7,7 +7,7 @@ from datetime import datetime
 from src.exceptions import AdminAlreadyExistsError
 from src.database import engine
 from src.users import UserService, users_router
-
+from src.organizations import OrganizationService, organization_router
 import logging.config
 from logging.config import fileConfig
 
@@ -34,6 +34,7 @@ async def lifespan(app):
 app = FastAPI(lifespan=lifespan)
 
 app.include_router(users_router)
+app.include_router(organization_router)
 
 @app.middleware("http")
 async def log_requests(request: Request, call_next):

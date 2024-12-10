@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, status
 from .schemas import UserCreate, UserResponse, UserUpdate
 from .service import UserService
+from src.exceptions import UserNotFoundError
 import logging
 
 logger = logging.getLogger('app')
@@ -12,7 +13,7 @@ async def create_new_user(user_create: UserCreate):
     try:
         user = await UserService.create_user(user_create)
         return user
-    except ValueError as e:
+    except HTTPException as e:
         logger.error(f"Ошибка при создании пользователя \"{user_create.username}\": {str(e)}")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
@@ -25,7 +26,7 @@ async def get_user(username: str):
     try:
         user = await UserService.get_user_by_username(username)
         return user
-    except HTTPException as e:
+    except UserNotFoundError as e:
         logger.error(f"Ошибка при получении пользователя \"{username}\": {str(e)}")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=str(e))
 
@@ -52,9 +53,12 @@ async def update_user(user_update: UserUpdate):
     try:
         updated = await UserService.update_user(user_update)
         return updated
+    except HTTPException as e:
+        raise e
     except Exception as e:
         logger.error(f"Неизвестная ошибка при получении пользователя: {str(e)}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,detail=str(e))
+
 
 
 @router.patch("/users/{username}",response_model=UserResponse)
@@ -63,9 +67,9 @@ async def toggle_user_status(username:str):
     try:
         updated = await UserService.toggle_user(username)
         return updated
-    except Exception as e:
-        logger.error(f"Неизвестная ошибка при получении пользователя: {str(e)}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,detail=str(e))
+    except UserNotFoundError as e:
+        logger.error(f"Ошибка при получении пользователя: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=str(e))
 
 @router.delete("/users/{username}")
 async def delete_user(username: str):
@@ -73,6 +77,6 @@ async def delete_user(username: str):
     try:
         await UserService.delete_user(username)
         return {"Deleted": True}
-    except Exception as e:
-        logger.error(f"Неизвестная ошибка при удалении пользователя: {str(e)}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,detail=str(e))
+    except UserNotFoundError as e:
+        logger.error(f"Ошибка при удалении пользователя: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=str(e))

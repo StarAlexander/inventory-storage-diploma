@@ -49,15 +49,30 @@ class UserRepository:
     async def update_user(self, user:UserUpdate) -> User:
         old = await self.get_user_by_username(user.username)
 
+        if not old:
+            raise ValueError("Пользователь не найден")
+
         # Подтверждение смены пароля
         if user.password:
             old.set_password(user.password)
 
-        res = await self.session.execute(update(User).where(User.username==user.username).values(dict(password_hash=old.password_hash,
-        first_name=user.first_name,last_name=user.last_name,middle_name=user.middle_name,email=user.email,phone=user.phone,
-        is_system=user.is_system,hired_at=user.hired_at)).returning(User))
+        update_data = {}
+        for field, value in user.model_dump(exclude_unset=True).items():
+            if field == "password":
+                continue
+
+            update_data[field] = value
+
+        res = await self.session.execute(
+            update(User)
+            .where(User.username == user.username)
+            .values(update_data)
+            .returning(User)
+        )
+
         await self.session.commit()
         return res.scalars().first()
+
 
 
     async def toggle_user(self,username:str) -> User:

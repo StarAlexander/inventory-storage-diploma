@@ -5,7 +5,7 @@ from .schemas import UserCreate, UserUpdate
 from .models import User
 from .repository import UserRepository
 from src.database import SessionLocal
-
+from src.exceptions import UserNotFoundError
 logger = logging.getLogger('app')
 
 class UserService:
@@ -73,13 +73,17 @@ class UserService:
     @staticmethod
     async def update_user(user:UserUpdate) -> User:
         logger.info(f"Попытка обновить пользователя")
-        async with SessionLocal() as session:
-            repo = UserRepository(session)
-            updated = await repo.update_user(user)
-            
-            if not updated:
-                raise HTTPException(status_code=500,detail="failed to update")
-            return updated
+        try:
+            async with SessionLocal() as session:
+                repo = UserRepository(session)
+                updated = await repo.update_user(user)
+
+                if not updated:
+                    raise HTTPException(status_code=500,detail="failed to update")
+                return updated
+        except UserNotFoundError:
+            raise HTTPException(status_code=404, detail="No such user")
+
     
     @staticmethod
     async def toggle_user(username:str) -> User:
