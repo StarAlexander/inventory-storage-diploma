@@ -39,10 +39,11 @@ async def get_users():
     """Возвращает список пользователей"""
     try:
         users = await UserService.get_users()
+        print([u.username for u in users])
         return users
     except Exception as e:
-        logger.error(f"Неизвестная ошибка при получении пользователей: {str(e)}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        logger.error(f"Нет пользователей: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 @router.put("/users/", response_model=UserResponse)
@@ -55,6 +56,16 @@ async def update_user(user_update: UserUpdate):
         logger.error(f"Неизвестная ошибка при получении пользователя: {str(e)}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,detail=str(e))
 
+
+@router.patch("/users/{username}",response_model=UserResponse)
+async def toggle_user_status(username:str):
+    """Переключает статус пользователя"""
+    try:
+        updated = await UserService.toggle_user(username)
+        return updated
+    except Exception as e:
+        logger.error(f"Неизвестная ошибка при получении пользователя: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,detail=str(e))
 
 @router.delete("/users/{username}")
 async def delete_user(username: str):

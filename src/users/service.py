@@ -54,9 +54,10 @@ class UserService:
         async with SessionLocal() as session:
             repo = UserRepository(session)
             users = await repo.get_users()
-            if not users:
-                raise HTTPException(status_code=500,detail="Unknown server exception")
-            return users
+            all = users.fetchall()
+            if not len(all):
+                raise HTTPException(status_code=404,detail="No users found")
+            return all
 
 
     @staticmethod
@@ -80,6 +81,16 @@ class UserService:
                 raise HTTPException(status_code=500,detail="failed to update")
             return updated
     
+    @staticmethod
+    async def toggle_user(username:str) -> User:
+        logger.info(f"Попытка переключить пользователя")
+        async with SessionLocal() as session:
+            repo = UserRepository(session)
+            toggled = await repo.toggle_user(username)
+            if not toggled:
+                raise HTTPException(status_code=500,detail="failed to toggle")
+            return toggled
+
     @staticmethod
     async def delete_user(username:str):
         logger.info(f"Попытка удалить пользователя: {username}")

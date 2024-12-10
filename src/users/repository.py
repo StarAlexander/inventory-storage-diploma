@@ -53,9 +53,19 @@ class UserRepository:
         if user.password:
             old.set_password(user.password)
 
-        res = await self.session.execute(update(User).where(User.username==user.username).values(dict(username=user.username,password_hash=old.password_hash)).returning(User))
+        res = await self.session.execute(update(User).where(User.username==user.username).values(dict(password_hash=old.password_hash,
+        first_name=user.first_name,last_name=user.last_name,middle_name=user.middle_name,email=user.email,phone=user.phone,
+        is_system=user.is_system,hired_at=user.hired_at)).returning(User))
         await self.session.commit()
         return res.scalars().first()
+
+
+    async def toggle_user(self,username:str) -> User:
+        user = await self.get_user_by_username(username)
+        res = await self.session.execute(update(User).where(User.username==user.username).values(status=not user.status).returning(User))
+        await self.session.commit()
+        return res.scalars().first()
+
 
     async def delete_user(self,username:str):
         await self.session.execute(delete(User).where(User.username == username))
