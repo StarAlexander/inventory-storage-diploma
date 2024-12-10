@@ -1,5 +1,7 @@
-def test_create_user(client):
-    response = client.post(
+import pytest
+@pytest.mark.asyncio
+async def test_create_user(client):
+    response = await client.post(
         "/users/",
         json={"username": "testuser", "password": "ValidPass123!",
               "email":"sample@mail.ru","first_name":"test",
@@ -12,16 +14,14 @@ def test_create_user(client):
     data = response.json()
     assert data["username"] == "testuser" 
 
-
-def test_update_user(client):
-    response = client.get("/users/")
+@pytest.mark.asyncio
+async def test_get_users(client):
+    response = await client.get("/users/")
     assert response.status_code == 200
 
-def test_delete_user(client):
-    response = client.delete("/users/testuser")
+@pytest.mark.asyncio
+async def test_delete_user(client):
+    response = await client.delete("/users/testuser")
     assert response.status_code == 200
     
     
-
-def test_toggle_user(client):
-    assert 200 == 200
