@@ -1,0 +1,25 @@
+# Основные зависимости
+fastapi==0.115.6
+uvicorn==0.32.1
+pydantic==2.10.3
+sqlalchemy==2.0.36
+asyncpg==0.30.0
+alembic==1.14.0
+celery==5.5.0rc3
+redis==5.0.0
+pytest==8.3.4
+python-dotenv==1.0.1
+passlib[bcrypt]
+starlette==0.41.3
+python-jose==3.4.0
+python-multipart==0.0.20
+aiomysql==0.2.0
+cryptography==44.0.2
+ldap3==2.9.1
+user-agents==2.2.0
+# Зависимости для разработки
+pytest-cov==6.0.0
+pytest-asyncio==0.24.0
+httpx==0.28.1
+sqlalchemy-utils==0.41.2
+asgi-lifespan
