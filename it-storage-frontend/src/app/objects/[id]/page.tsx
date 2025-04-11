@@ -271,7 +271,7 @@ export default function ObjectDetailPage() {
 
             <div>
               <label htmlFor="cost" className="block text-sm font-medium text-gray-700">
-                Стоимость
+                Стоимость в рублях (₽)
               </label>
               <input
                 id="cost"
@@ -360,6 +360,21 @@ export default function ObjectDetailPage() {
                           onChange={(date) => handleDynamicValueChange(field.id, date)}
                           className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                         />
+                      )}
+
+                        {field.field_type === 'select' && (
+                        <select
+                          id={`field-${field.id}`}
+                          value={value}
+                          onChange={(e) => handleDynamicValueChange(field.id, e.target.value)}
+                          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        >
+                          {field.select_options?.map((option: any) => (
+                            <option key={option.value} value={option.value}>
+                              {option.display_name || option.value}
+                            </option>
+                          ))}
+                        </select>
                       )}
                     </div>
                   );

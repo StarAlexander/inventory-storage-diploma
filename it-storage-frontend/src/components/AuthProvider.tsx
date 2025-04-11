@@ -18,7 +18,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [status, pathname, router])
 
   useEffect(()=> {
-    if (!hasAccess && !isLoading && !isAuthenticated) router.replace('/login')
+    if (!hasAccess && !isLoading && isAuthenticated) router.replace('/unauthorized')
+    else if (!hasAccess && !isLoading && !isAuthenticated) router.replace('/login')
   },[hasAccess,isLoading,router,isAuthenticated])
 
   if (status === 'loading') {

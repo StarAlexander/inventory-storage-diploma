@@ -79,12 +79,12 @@ export function PageDialog({ open, onOpenChange, page, onSuccess }: PageDialogPr
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{page ? 'Edit Page Access' : 'Add New Page'}</DialogTitle>
+          <DialogTitle>{page ? 'Изменить доступ' : 'Добавить новую настройку'}</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-4">
           <div>
-            <Label>Path</Label>
+            <Label>Путь к странице</Label>
             <Input 
               value={path} 
               onChange={(e) => setPath(e.target.value)} 
@@ -93,7 +93,7 @@ export function PageDialog({ open, onOpenChange, page, onSuccess }: PageDialogPr
           </div>
           
           <div>
-            <Label>Name</Label>
+            <Label>Название</Label>
             <Input 
               value={name} 
               onChange={(e) => setName(e.target.value)} 
@@ -102,7 +102,7 @@ export function PageDialog({ open, onOpenChange, page, onSuccess }: PageDialogPr
           </div>
           
           <div>
-            <Label>Description</Label>
+            <Label>Описание</Label>
             <Input 
               value={description} 
               onChange={(e) => setDescription(e.target.value)} 
@@ -111,21 +111,21 @@ export function PageDialog({ open, onOpenChange, page, onSuccess }: PageDialogPr
           </div>
           
           <div>
-            <Label>Required Rights</Label>
+            <Label>Требуемые права</Label>
             <MultiSelect
               options={allRights.map(r => ({ value: r.id, label: r.name }))}
               selectedValues={selectedRights}
               onChange={setSelectedRights}
-              placeholder="Select rights..."
+              placeholder="Выберите права..."
             />
           </div>
           
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              Отменить
             </Button>
             <Button onClick={handleSubmit} disabled={loading}>
-              {loading ? 'Saving...' : 'Save'}
+              {loading ? 'Сохраняем...' : 'Сохранить'}
             </Button>
           </div>
         </div>

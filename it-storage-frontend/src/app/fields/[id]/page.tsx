@@ -42,6 +42,7 @@ export default function FieldDetailPage() {
       name: string;
       field_type: "number" | "text" | "date" | "select";
       description?: string;
+      select_options:any
     }) => {
       setIsSubmitting(true);
       setError(null);

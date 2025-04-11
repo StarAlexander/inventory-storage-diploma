@@ -20,7 +20,7 @@ class Department(Base):
     __tablename__ = "departments"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    organization_id = Column(Integer, ForeignKey("organizations.id", ondelete="CASCADE"), unique=True)
+    organization_id = Column(Integer, ForeignKey("organizations.id", ondelete="CASCADE"))
     name = Column(String(255), nullable=False)
     description = Column(Text)
     abbreviation = Column(String(10))

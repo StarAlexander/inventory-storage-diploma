@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FiHome, FiLogOut, FiUsers, FiSettings, FiLayers, FiTag, FiGrid, FiKey, FiBriefcase, FiUserCheck, FiAward, FiShield, FiX, FiMenu } from "react-icons/fi";
 import { usePageAccess } from "@/hooks/usePageAccess";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
@@ -75,21 +75,26 @@ const navItems = [
 export function Sidebar() {
     const pathname = usePathname();
     const { hasAccess } = usePageAccess();
+    const {data:session} = useSession()
     const isMobile = useMediaQuery("(max-width: 768px)");
     const [isOpen, setIsOpen] = useState(false);
+    const [isAdmin,setIsAdmin] = useState(false)
   
     useEffect(() => {
+      if (session?.user) {
+        setIsAdmin(session?.user?.username == "admin")
+      }
       if (isMobile) setIsOpen(false);
-    }, [pathname, isMobile]);
+    }, [pathname, isMobile,session]);
   
     useEffect(() => {
       document.body.style.overflow = isMobile && isOpen ? 'hidden' : 'auto';
       return () => { document.body.style.overflow = 'auto' };
     }, [isOpen, isMobile]);
-  
+    console.log(isAdmin)
     const filteredItems = navItems.filter(item => {
-      if (!item.adminOnly) return true;
-      return hasAccess;
+      if (item.adminOnly && !isAdmin) return false
+      return true
     });
   
     if (pathname === '/login') return null;

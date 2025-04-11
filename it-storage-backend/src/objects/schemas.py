@@ -17,11 +17,15 @@ class ObjectCategorySchema(ObjectCategoryCreate):
 
 
 
+class SelectValue(BaseModel):
+    value: str
+
 class DynamicFieldCreate(BaseModel):
     category_id: int
     name: str
     field_type: str
     description: Optional[str]
+    select_options: List[SelectValue] | None = None
 
 
 class DynamicFieldSchema(BaseModel):
@@ -32,6 +36,8 @@ class DynamicFieldSchema(BaseModel):
     description: Optional[str]
     created_at: datetime
     updated_at: datetime
+
+    select_options:List[SelectValue] | None = None
 
     class Config:
         orm_mode = True

@@ -24,7 +24,7 @@ export function usePageAccess() {
           router.push('/login')
           return
         }
-        if (pathname === '/login' || pathname === '/unauthorized') {
+        if (pathname === '/login' || pathname === '/unauthorized' || pathname === '/') {
           setAccessState({ hasAccess: true, isLoading: false,isAuthenticated:true })
           return
         }

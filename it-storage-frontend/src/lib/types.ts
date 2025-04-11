@@ -159,4 +159,5 @@ export interface InventoryObject {
     name: string;
     field_type: 'text' | 'number' | 'date' | 'select';
     description?: string;
+    select_options: any
   }

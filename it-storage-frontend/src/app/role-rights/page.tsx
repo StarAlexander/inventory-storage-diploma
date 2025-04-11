@@ -253,7 +253,7 @@ export default function RoleRightsPage() {
   if (error) {
     return (
       <Alert variant="destructive" className="m-6">
-        <AlertTitle>Error</AlertTitle>
+        <AlertTitle>Ошибка</AlertTitle>
         <AlertDescription>{error}</AlertDescription>
       </Alert>
     );
@@ -262,27 +262,27 @@ export default function RoleRightsPage() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Role Rights Management</h1>
+        <h1 className="text-2xl font-bold">Привязка прав к ролям</h1>
         <div className="text-sm text-muted-foreground">
-          {roleRights.length} assignments
+          Кол-во привязок: {roleRights.length}
         </div>
       </div>
 
       {bulkOperation && (
         <Alert className="mb-4">
-          <AlertTitle>Apply to child roles?</AlertTitle>
+          <AlertTitle>Применить к дочерним ролям?</AlertTitle>
           <AlertDescription>
-            Do you want to {bulkOperation.action} this right for all child roles?
+            Хотите применить это действие ({bulkOperation.action}) для всех дочерних ролей?
             <div className="flex gap-2 mt-2">
               <Button size="sm" onClick={() => applyToChildren(true)}>
-                Yes, apply to all
+                Да, применить ко всем
               </Button>
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={() => applyToChildren(false)}
               >
-                No, just this role
+                Нет, только для этой роли
               </Button>
             </div>
           </AlertDescription>
@@ -294,7 +294,7 @@ export default function RoleRightsPage() {
           <table className="w-full">
             <thead className="bg-gray-100">
               <tr>
-                <th className="py-3 px-4 text-left min-w-[300px]">Role</th>
+                <th className="py-3 px-4 text-left min-w-[300px]">Роль</th>
                 {rights.map(right => (
                   <th key={right.id} className="py-3 px-4 text-center">
                     <div className="flex flex-col items-center">

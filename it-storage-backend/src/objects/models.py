@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import JSON, TIMESTAMP, Column, Enum, Float, ForeignKey, Integer, String, Table, Text, func
+from sqlalchemy import JSON, TIMESTAMP, Boolean, Column, Enum, Float, ForeignKey, Integer, String, Table, Text, func
 from sqlalchemy.orm import relationship
 from src.database import Base
 
@@ -25,7 +25,7 @@ class DynamicField(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     category_id = Column(Integer, ForeignKey("object_categories.id", ondelete="CASCADE"))
     name = Column(String(255), nullable=False)
-    field_type = Column(String(50), nullable=False)  # e.g., "text", "number", "date"
+    field_type = Column(String(50), nullable=False)  # e.g., "text", "number", "date", "select"
     description = Column(Text)
     created_at = Column(TIMESTAMP, default=func.now())
     updated_at = Column(TIMESTAMP, default=func.now(), onupdate=func.now())
@@ -36,6 +36,23 @@ class DynamicField(Base):
         "ObjectDynamicFieldValue",
         back_populates="field"
     )
+
+    select_options = relationship("SelectValue", back_populates="field", 
+                                cascade="all, delete-orphan")
+
+
+
+class SelectValue(Base):
+    __tablename__ = "select_values"
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    field_id = Column(Integer, ForeignKey("dynamic_fields.id", ondelete="CASCADE"))
+    value = Column(String(255), nullable=False)
+    display_name = Column(String(255))  # Optional display name different from value
+    sort_order = Column(Integer, default=0)  # For ordering options
+    is_default = Column(Boolean, default=False)  # Mark default selection
+    
+    field = relationship("DynamicField", back_populates="select_options")
 
 
 class ObjectDynamicFieldValue(Base):

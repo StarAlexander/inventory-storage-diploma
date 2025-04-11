@@ -55,8 +55,8 @@ export function PageAccessControl() {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Page Access Control</h1>
-        <Button onClick={() => setDialogOpen(true)}>Add New Page</Button>
+        <h1 className="text-2xl font-bold">Управление доступом</h1>
+        <Button onClick={() => setDialogOpen(true)}>Добавить настройку</Button>
       </div>
 
       <DataTable 

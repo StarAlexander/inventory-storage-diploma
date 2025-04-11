@@ -26,7 +26,7 @@ import {
     return (
       <div className="rounded-md border">
         {loading ? (
-          <div className="p-4 text-center">Loading...</div>
+          <div className="p-4 text-center">Загрузка...</div>
         ) : (
           <table className="w-full">
             <thead>

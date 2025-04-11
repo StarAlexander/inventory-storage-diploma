@@ -7,7 +7,7 @@ from sqlalchemy.inspection import inspect
 from sqlalchemy.exc import NoResultFound,IntegrityError
 from src.departments.schemas import DepartmentCreate
 from src.departments.models import Department
-from src.objects.models import DynamicField, Object, ObjectCategory,ObjectDynamicFieldValue
+from src.objects.models import DynamicField, Object, ObjectCategory,ObjectDynamicFieldValue, SelectValue
 from src.objects.schemas import ObjectCategoryCreate
 from src.organizations.models import Organization
 from src.roles.models import Right, Role
@@ -145,8 +145,39 @@ class ObjectCategoryRepository(BaseRepository):
 
 
 class DynamicFieldRepository(BaseRepository):
-    def __init__(self, db: Session):
+    def __init__(self, db: AsyncSession):
         super().__init__(DynamicField, db)
+
+    
+    async def create(self,data: dict):
+        try:
+            print(f"data = {data}")
+            field = DynamicField(
+                category_id=data['category_id'],
+                name = data['name'],
+                field_type = data['field_type'],
+                description = data['description']
+            )
+
+            if data['field_type'] == "select" and len(data['select_options']) > 0:
+                for option in data['select_options']:
+                    if option.get('value'):
+                        select_value = SelectValue(
+                            value = option['value'],
+                            display_name = option.get('display_name',option['value'])
+                        )
+                        field.select_options.append(select_value)
+            
+            self.db.add(field)
+            await self.db.commit()
+            await self.db.refresh(field)
+            return await self.get_by_id(field.id)
+        
+        except Exception as e:
+            print(e)
+
+
+
 
 
 class ObjectRepository(BaseRepository):

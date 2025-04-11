@@ -11,20 +11,20 @@ export const columns = (
 ): ColumnDef<Page>[] => [
   {
     accessorKey: 'name',
-    header: 'Name',
+    header: 'Название',
   },
   {
     accessorKey: 'path',
-    header: 'Path',
+    header: 'Путь',
   },
   {
     accessorKey: 'description',
-    header: 'Description',
+    header: 'Описание',
     cell: ({ row }) => row.original.description || 'N/A',
   },
   {
     accessorKey: 'required_rights',
-    header: 'Required Rights',
+    header: 'Требуемые права',
     cell: ({ row }) => row.original.required_rights.map(r => r.name).join(', ') || 'None'
       
   },
@@ -40,13 +40,13 @@ export const columns = (
             setDialogOpen(true)
           }}
         >
-          Edit
+          Редактировать
         </Button>
         <Button
           variant="destructive"
           size="sm"
           onClick={async () => {
-            if (confirm('Are you sure you want to delete this page?')) {
+            if (confirm('Вы уверены, что хотите удалить эту настройку?')) {
               await fetchWithAuth(`http://backend:8000/admin/pages/${row.original.id}`, {
                 method: 'DELETE',
               })
@@ -54,7 +54,7 @@ export const columns = (
             }
           }}
         >
-          Delete
+          Удалить
         </Button>
       </div>
     ),
