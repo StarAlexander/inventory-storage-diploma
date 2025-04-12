@@ -201,7 +201,6 @@ class ObjectRepository(BaseRepository):
                 self.db.add(odfv)
             await self.db.commit()
             obj = await self.get_by_id(obj.id)
-            inst = inspect(obj)
             return obj
         except IntegrityError as ie:
             await self.db.rollback()

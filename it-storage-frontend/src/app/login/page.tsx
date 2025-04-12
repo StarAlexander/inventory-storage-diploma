@@ -24,7 +24,7 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError(result.error);
+        setError("Логин или пароль не совпадают");
       } else {
         router.push('/');
       }

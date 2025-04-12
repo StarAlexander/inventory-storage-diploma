@@ -57,8 +57,8 @@ export default function OrganizationDetailPage() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || "Failed to save organization");
+        const errorData = await response.text();
+        throw new Error(errorData || "Failed to save organization");
       }
 
       router.push("/organizations");
@@ -123,7 +123,7 @@ export default function OrganizationDetailPage() {
 
             <div>
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                Телефон
+                Телефон *
               </label>
               <input
                 id="phone"

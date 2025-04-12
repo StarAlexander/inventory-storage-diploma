@@ -72,6 +72,7 @@ class Object(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     category_id = Column(Integer, ForeignKey("object_categories.id", ondelete="SET NULL"))
+    department_id = Column(Integer, ForeignKey("departments.id", ondelete="SET NULL"))
     name = Column(String(255), nullable=False)
     description = Column(Text)
     inventory_number = Column(String(50), unique=True, nullable=False)
@@ -82,6 +83,7 @@ class Object(Base):
     created_at = Column(TIMESTAMP, default=func.now())
     updated_at = Column(TIMESTAMP, default=func.now(), onupdate=func.now())
     status = Column(String(20), nullable="False",default="Активно")
+    department = relationship("Department",back_populates="objects")
     category = relationship("ObjectCategory", back_populates="objects")
     dynamic_values = relationship(
         "ObjectDynamicFieldValue",

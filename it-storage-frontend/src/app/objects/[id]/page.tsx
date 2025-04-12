@@ -6,6 +6,7 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { DatePicker } from "@/components/DatePicker";
 import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
 import { randomBytes } from "crypto"
+import { DepartmentSchema } from "@/lib/types";
 
 export default function ObjectDetailPage() {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function ObjectDetailPage() {
   const [object, setObject] = useState({
     name: "",
     category_id: "",
+    department_id:"",
     inventory_number: "",
     serial_number: "",
     status: "active",
@@ -29,6 +31,7 @@ export default function ObjectDetailPage() {
   const [dynamicFields, setDynamicFields] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [departments,setDepartments] = useState<DepartmentSchema[]>([])
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -38,6 +41,10 @@ export default function ObjectDetailPage() {
         if (!response.ok) throw new Error("Failed to fetch categories");
         const data = await response.json();
         setCategories(data);
+        const depResponse = await fetchWithAuth("http://backend:8000/departments")
+        if (!depResponse.ok) throw new Error("Failed to fetch departments")
+        const depData = await depResponse.json()
+        setDepartments(depData)
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load categories");
       }
@@ -189,6 +196,24 @@ export default function ObjectDetailPage() {
                 ))}
               </select>
             </div>
+            <div>
+              <label htmlFor="department_id" className="block text-sm font-medium text-gray-700">
+                Отдел *
+              </label>
+              <select
+                id="department_id"
+                name="department_id"
+                value={object.department_id}
+                onChange={handleChange}
+                required
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              >
+                <option value="">Выберите отдел</option>
+                {departments.map(dep => (
+                  <option key={dep.id} value={dep.id}>{dep.name}</option>
+                ))}
+              </select>
+            </div>
 
                       <div>
             <label htmlFor="inventory_number" className="block text-sm font-medium text-gray-700">
@@ -271,7 +296,7 @@ export default function ObjectDetailPage() {
 
             <div>
               <label htmlFor="cost" className="block text-sm font-medium text-gray-700">
-                Стоимость в рублях (₽)
+                Стоимость в рублях (₽) *
               </label>
               <input
                 id="cost"

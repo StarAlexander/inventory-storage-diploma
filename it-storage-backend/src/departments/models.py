@@ -30,4 +30,5 @@ class Department(Base):
     organization = relationship("Organization", back_populates="departments")
     users = relationship("User", back_populates="department")
     rights = relationship("DepartmentRights",back_populates="department")
+    objects = relationship("Object", back_populates="department",cascade="all, delete-orphan")
 

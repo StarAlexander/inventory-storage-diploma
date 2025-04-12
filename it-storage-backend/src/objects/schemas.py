@@ -45,6 +45,7 @@ class DynamicFieldSchema(BaseModel):
 
 class ObjectCreate(BaseModel):
     category_id: int
+    department_id: int
     name: str
     description: Optional[str]
     inventory_number: str
@@ -70,6 +71,7 @@ class ObjectCreate(BaseModel):
 
 class ObjectUpdate(BaseModel):
     category_id: Optional[int] = None
+    department_id: Optional[int] = None
     name: Optional[str] = None
     description: Optional[str]= None
     inventory_number: str= None
@@ -101,6 +103,7 @@ class FieldValueSchema(BaseModel):
 class ObjectSchema(BaseModel):
     id: int
     category_id: int
+    department_id: int
     name: str
     description: Optional[str]
     inventory_number: str
