@@ -1,5 +1,5 @@
 from typing import Dict
-from src.objects.schemas import DynamicFieldCreate, ObjectCreate, ObjectUpdate
+from src.objects.schemas import ObjectCategoryCreate, DynamicFieldCreate, ObjectCreate, ObjectUpdate
 from src.repositories import DynamicFieldRepository, ObjectCategoryRepository, ObjectRepository
 from src.database import AsyncSessionLocal
 
@@ -7,7 +7,7 @@ class ObjectCategoryService:
 
 
     @staticmethod
-    async def create_category(data: DynamicFieldCreate):
+    async def create_category(data: ObjectCategoryCreate):
         async with AsyncSessionLocal() as session:
             repo = ObjectCategoryRepository(session)
             return await repo.create(data.model_dump())
@@ -22,7 +22,7 @@ class ObjectCategoryService:
             repo = ObjectCategoryRepository(session)
             return await repo.get_by_id(id)
     @staticmethod
-    async def update_category( id: int, data: DynamicFieldCreate):
+    async def update_category( id: int, data: ObjectCategoryCreate):
         async with AsyncSessionLocal() as session:
             repo = ObjectCategoryRepository(session)
             return await repo.update(id, data.model_dump())

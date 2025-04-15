@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
+from src.departments.schemas import DepartmentSchema
 
 class OrganizationBase(BaseModel):
     name: str
@@ -11,6 +12,7 @@ class OrganizationBase(BaseModel):
 
 class OrganizationResponse(OrganizationBase):
     id: int
+    departments: list[DepartmentSchema] | None = None
     created_at: datetime | str
     updated_at: datetime | str
     model_config = ConfigDict(from_attributes=True)

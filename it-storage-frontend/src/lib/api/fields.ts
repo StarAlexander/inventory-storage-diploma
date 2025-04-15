@@ -45,7 +45,7 @@ export const updateField = async (id: number, data: FieldCreateData): Promise<Dy
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
-  if (!response.ok) throw new Error('Failed to update field');
+  if (!response.ok) throw new Error('Some of the field values are in use');
   return response.json();
 };
 

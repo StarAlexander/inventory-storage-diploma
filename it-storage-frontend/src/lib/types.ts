@@ -31,6 +31,7 @@ export interface OrganizationSchema extends OrganizationCreate {
     id: number
     created_at:string
     updated_at: string
+    departments?: DepartmentSchema[]
 }
 
 

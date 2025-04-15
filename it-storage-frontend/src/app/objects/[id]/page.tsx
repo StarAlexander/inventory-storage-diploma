@@ -5,8 +5,7 @@ import { useState, useEffect } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { DatePicker } from "@/components/DatePicker";
 import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
-import { randomBytes } from "crypto"
-import { DepartmentSchema } from "@/lib/types";
+import { DepartmentSchema, OrganizationSchema } from "@/lib/types";
 
 export default function ObjectDetailPage() {
   const router = useRouter();
@@ -31,9 +30,11 @@ export default function ObjectDetailPage() {
   const [dynamicFields, setDynamicFields] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [departments,setDepartments] = useState<DepartmentSchema[]>([])
+  const [organizations,setOrganizations] = useState<OrganizationSchema[]>([])
+  const [currentOrg,setCurrentOrg] = useState<OrganizationSchema | null>(null)
+  //const [departments,setDepartments] = useState<DepartmentSchema[]>([])
   const [error, setError] = useState<string | null>(null);
-
+  console.log(currentOrg)
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -41,10 +42,11 @@ export default function ObjectDetailPage() {
         if (!response.ok) throw new Error("Failed to fetch categories");
         const data = await response.json();
         setCategories(data);
-        const depResponse = await fetchWithAuth("http://backend:8000/departments")
-        if (!depResponse.ok) throw new Error("Failed to fetch departments")
-        const depData = await depResponse.json()
-        setDepartments(depData)
+
+        const orgResponse = await fetchWithAuth("http://backend:8000/organizations")
+        if (!orgResponse.ok) throw new Error("Failed to fetch organizations")
+        const orgData = await orgResponse.json()
+        setOrganizations(orgData)
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load categories");
       }
@@ -197,6 +199,24 @@ export default function ObjectDetailPage() {
               </select>
             </div>
             <div>
+              <label htmlFor="organization_id" className="block text-sm font-medium text-gray-700">
+                Организация *
+              </label>
+              <select
+                id="organization_id"
+                name="organization_id"
+                value={currentOrg?.id}
+                onChange={(e) => setCurrentOrg(()=>organizations.find(o=>o.id==Number(e.target.value))!!)}
+                required
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              >
+                <option value="">Выберите организацию</option>
+                {organizations.map(org => (
+                  <option key={org.id} value={org.id}>{org.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
               <label htmlFor="department_id" className="block text-sm font-medium text-gray-700">
                 Отдел *
               </label>
@@ -209,7 +229,7 @@ export default function ObjectDetailPage() {
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               >
                 <option value="">Выберите отдел</option>
-                {departments.map(dep => (
+                {currentOrg?.departments?.map(dep => (
                   <option key={dep.id} value={dep.id}>{dep.name}</option>
                 ))}
               </select>
@@ -262,18 +282,6 @@ export default function ObjectDetailPage() {
                 required
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               />
-              {!isEditing && (
-                <button 
-                  type="button" 
-                  onClick={() => setObject(prev => ({
-                    ...prev,
-                    serial_number: `${randomBytes(2).toString('hex')}-${randomBytes(2).toString('hex')}-${randomBytes(2).toString('hex')}`
-                  }))}
-                  className="mt-1 text-sm text-indigo-600 hover:text-indigo-500"
-                >
-                  Сгенерировать автоматически
-                </button>
-              )}
             </div>
 
             <div>

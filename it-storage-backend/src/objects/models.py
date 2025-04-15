@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import JSON, TIMESTAMP, Boolean, Column, Enum, Float, ForeignKey, Integer, String, Table, Text, func
+from sqlalchemy import JSON, UniqueConstraint, TIMESTAMP, Boolean, Column, Enum, Float, ForeignKey, Integer, String, Table, Text, func
 from sqlalchemy.orm import relationship
 from src.database import Base
 
@@ -75,7 +75,7 @@ class Object(Base):
     department_id = Column(Integer, ForeignKey("departments.id", ondelete="SET NULL"))
     name = Column(String(255), nullable=False)
     description = Column(Text)
-    inventory_number = Column(String(50), unique=True, nullable=False)
+    inventory_number = Column(String(50), nullable=False)
     serial_number = Column(String(50), unique=True, nullable=False)
     cost = Column(Float, nullable=True)
     purchase_date = Column(TIMESTAMP, nullable=True)
@@ -92,6 +92,11 @@ class Object(Base):
     )
 
     requests = relationship("Request",back_populates="object")
+
+    __table_args__ = (
+        UniqueConstraint("department_id","inventory_number",name="inventory_uniqueness_among_departments"),
+    )
+
 
 
 class Request(Base):

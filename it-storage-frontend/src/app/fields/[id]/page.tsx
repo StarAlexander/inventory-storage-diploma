@@ -55,7 +55,8 @@ export default function FieldDetailPage() {
         }
         router.push('/fields');
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to save field');
+        console.log(err)
+        setError(err instanceof Error ? err.message : "Failed to update a child");
       } finally {
         setIsSubmitting(false);
       }

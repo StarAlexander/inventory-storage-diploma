@@ -176,6 +176,59 @@ class DynamicFieldRepository(BaseRepository):
         except Exception as e:
             print(e)
 
+    async def update(self, id: int, data: dict):
+        try:
+            field = await self.get_by_id(id)
+            if not field:
+                raise ValueError(f"Field with id {id} not found")
+            
+            # Handle select options separately
+            if "select_options" in data:
+
+                diff = list(set([o.value for o in field.select_options]) - set([op["value"] for op in data["select_options"]]))
+                print(diff)
+                res = await self.db.execute(select(ObjectDynamicFieldValue).where(ObjectDynamicFieldValue.value.in_(diff)))
+                vals = res.scalars().all()
+                print([v.value for v in vals])
+                print(len(vals))
+                if (len(vals) > 0):
+                    raise HTTPException(status_code=400,detail="Some of deleted values are in use")
+
+
+                # Clear existing options
+                field.select_options.clear()
+                
+                # Add new options
+                for option in data["select_options"]:
+                    if option.get("value"):  # Skip empty values
+                        field.select_options.append(SelectValue(
+                            field_id=id,
+                            value=option["value"],
+                            display_name=option.get("display_name", option["value"])
+                        ))
+                # Remove select_options from data to avoid setting it as an attribute
+                del data["select_options"]
+            
+            # Update other attributes
+            for key, value in data.items():
+                if value is not None and hasattr(field, key):
+                    setattr(field, key, value)
+            
+            await self.db.commit()
+            await self.db.refresh(field)
+            return field
+        
+
+        except HTTPException as e:
+            print("select options error")
+            raise
+
+        except Exception as e:
+            await self.db.rollback()
+            print(f"Error updating field: {e}")
+            raise
+
+
 
 
 

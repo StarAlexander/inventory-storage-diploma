@@ -1,5 +1,6 @@
 from typing import Any, List
 from fastapi import APIRouter, HTTPException
+from fastapi.params import Body
 from src.objects.service import DynamicFieldService, ObjectCategoryService, ObjectService
 from src.objects.schemas import DynamicFieldCreate, DynamicFieldSchema, ObjectCategoryCreate,ObjectCategorySchema, ObjectCreate, ObjectSchema, ObjectUpdate
 import logging
@@ -68,12 +69,17 @@ async def get_dynamic_field(field_id: int):
     return field
 
 
-@app.put("/dynamic-fields/{field_id}", response_model=DynamicFieldSchema)
-async def update_dynamic_field(field_id: int, field: DynamicFieldCreate):
-    field = await DynamicFieldService.update_field(field_id, field)
-    if not field:
-        raise HTTPException(status_code=404, detail="Field not found")
-    return field
+@app.put("/dynamic-fields/{field_id}")
+async def update_dynamic_field(field_id: int, field:DynamicFieldCreate):
+    try:
+
+        field = await DynamicFieldService.update_field(field_id, field)
+        if not field:
+            raise HTTPException(status_code=404, detail="Field not found")
+        return field
+    except HTTPException as e:
+        if e.status_code == 400:
+            raise e
 
 
 @app.delete("/dynamic-fields/{field_id}")

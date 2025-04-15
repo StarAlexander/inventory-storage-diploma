@@ -27,6 +27,9 @@ class DynamicFieldCreate(BaseModel):
     description: Optional[str]
     select_options: List[SelectValue] | None = None
 
+    class Config:
+        orm_model = True
+
 
 class DynamicFieldSchema(BaseModel):
     id: int

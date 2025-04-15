@@ -12,7 +12,12 @@ import logging
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-
+from src.organizations.service import OrganizationService
+from src.organizations.schemas import OrganizationBase
+from src.departments.service import DepartmentService
+from src.departments.schemas import DepartmentCreate
+from src.objects.service import ObjectCategoryService, DynamicFieldService, ObjectService
+from src.objects.schemas import ObjectCreate,ObjectCategoryCreate,DynamicFieldCreate
 from src.database import AsyncSessionLocal, engine
 from src.repositories import pwd_context,UserRepository
 from src.departments.router import app as dep_router
@@ -65,6 +70,20 @@ async def lifespan(app: FastAPI):
                     "is_active": True,
                 }
                 await UserService.create_user(data=UserCreate(**admin_data))
+                await OrganizationService.create_organization(data=OrganizationBase(name="ЦИИР",email="cair@cair-edu.ru"))
+                await OrganizationService.create_organization(data=OrganizationBase(name="СТАНКИН",email="stankin@mail.ru"))
+                await DepartmentService.create_department(data=DepartmentCreate(organization_id=1,name="ЦИИР первый отдел",abbreviation="CAIR-1"))
+                await DepartmentService.create_department(data=DepartmentCreate(organization_id=2,name="СТАНКИН первый отдел",abbreviation="STANKIN-1"))
+                await ObjectCategoryService.create_category(data=ObjectCategoryCreate(name="Компьютеры"))
+                await ObjectCategoryService.create_category(data=ObjectCategoryCreate(name="Мониторы"))
+                await ObjectCategoryService.create_category(data=ObjectCategoryCreate(name="Программное обеспечение"))
+                await ObjectCategoryService.create_category(data=ObjectCategoryCreate(name="Сетевые устройства"))
+                await ObjectCategoryService.create_category(data=ObjectCategoryCreate(name="Устройства"))
+                await ObjectCategoryService.create_category(data=ObjectCategoryCreate(name="Принтеры"))
+                await ObjectCategoryService.create_category(data=ObjectCategoryCreate(name="Картриджи"))
+                await ObjectCategoryService.create_category(data=ObjectCategoryCreate(name="Расходные материалы"))
+                await ObjectCategoryService.create_category(data=ObjectCategoryCreate(name="Телефоны"))
+                await ObjectCategoryService.create_category(data=ObjectCategoryCreate(name="Стойки"))
 
         yield
 
@@ -453,6 +472,7 @@ async def login_for_access_token(request: Request, form_data: OAuth2PasswordRequ
         raise HTTPException(status_code=500,detail=str(e))
 
 
+    
 
 
 

@@ -8,7 +8,7 @@ class DepartmentCreate(BaseModel):
     organization_id: int
     name: str
     abbreviation: str
-    description: Optional[str]
+    description: Optional[str] = None
 
 
 class DepartmentSchema(DepartmentCreate):
