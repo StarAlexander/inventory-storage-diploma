@@ -41,10 +41,29 @@ export default function OrganizationDetailPage() {
     fetchOrganization();
   }, [id, isEditing]);
 
+  const validateEmail = (email: string) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const orgRegex = /^[^\s@]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    
+    if (!regex.test(email)) {
+      return "Некорректный формат email";
+    }
+    if (!orgRegex.test(email)) {
+      return "Email должен быть в формате name@org.domain";
+    }
+    return null;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
+
+    const emailValidation = validateEmail(organization.email);
+    if (emailValidation) {
+      setError(emailValidation);
+      return;
+    }
 
     try {
       const url = isEditing ? `http://backend:8000/organizations/${id}` : "http://backend:8000/organizations";

@@ -29,8 +29,8 @@ export default function DepartmentsPage() {
           fetchWithAuth("http://backend:8000/organizations")
         ]);
         
-        if (!departmentsRes.ok) throw new Error("Failed to fetch departments");
-        if (!organizationsRes.ok) throw new Error("Failed to fetch organizations");
+        if (!departmentsRes.ok) throw new Error(await departmentsRes.text());
+        if (!organizationsRes.ok) throw new Error(await organizationsRes.text());
         
         const [departmentsData, organizationsData] = await Promise.all([
           departmentsRes.json(),

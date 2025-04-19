@@ -47,8 +47,8 @@ class Right(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     role_id = Column(Integer, ForeignKey("roles.id", ondelete="SET NULL"))
-    name = Column(String(255), nullable=False)
-    description = Column(Text)
+    entity_type = Column(String(255),nullable=False)
+    right_type = Column(String(255),nullable=False)
     created_at = Column(TIMESTAMP, default=func.now())
     updated_at = Column(TIMESTAMP, default=func.now(), onupdate=func.now())
     parent_id = Column(Integer, ForeignKey("rights.id", ondelete="SET NULL"))
@@ -88,6 +88,9 @@ user_roles = Table(
     Column("user_id", Integer, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True),
     Column("role_id", Integer, ForeignKey("roles.id", ondelete="CASCADE"), primary_key=True),
 )
+
+
+
 
 class Role(Base):
     __tablename__ = "roles"

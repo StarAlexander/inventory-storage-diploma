@@ -101,7 +101,7 @@ export function RoleRightTable({ url, entityName }: RoleRightTableProps) {
           </td>
           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
             <button
-              onClick={() => router.push(`${url}/${item.id}`)}
+              onClick={() => router.push(`/roles/${item.id}`)}
               className="text-indigo-600 hover:text-indigo-900 mr-4"
             >
               Изменить

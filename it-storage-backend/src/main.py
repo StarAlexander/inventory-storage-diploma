@@ -38,6 +38,9 @@ from src.database import Base,get_database
 load_dotenv()
 
 
+
+
+
 logging_config_path = os.path.join(os.path.dirname(__file__), '../logging.ini')
 if not os.path.exists(logging_config_path):
     raise FileNotFoundError(f"Logging config not found: {logging_config_path}")
@@ -272,9 +275,6 @@ async def audit_user_actions(request: Request, call_next):
 
 
 
-async def get_current_user(db: AsyncSession, username: str) -> Optional[User]:
-    return await UserService.get_user_by_username(username)
-
 async def get_page_by_path(db: AsyncSession, path: str) -> Optional[Page]:
     result = await db.execute(
         select(Page).where(Page.path == path).options(selectinload(Page.required_rights)))
@@ -369,7 +369,7 @@ async def page_permission_middleware(request: Request, call_next):
 
         
 
-app.middleware("http")(page_permission_middleware)
+# app.middleware("http")(page_permission_middleware)
 app.middleware("http")(user_audit)
 
 
@@ -408,7 +408,7 @@ app.add_middleware(
 # Авторизация
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
-PUBLIC_ENDPOINTS = ["/token","/docs", "/openapi.json"]
+PUBLIC_ENDPOINTS = ["/token","/docs", "/openapi.json","/user-logs/realtime"]
 
 
 

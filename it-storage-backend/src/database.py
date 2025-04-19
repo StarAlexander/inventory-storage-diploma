@@ -8,6 +8,10 @@ from dotenv import load_dotenv
 load_dotenv()
 Base = declarative_base()
 
+
+
+
+
 engine = create_async_engine(
     f"mysql+aiomysql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@db:3306/{os.getenv('DB_NAME')}?charset=utf8mb4",
     echo=True,

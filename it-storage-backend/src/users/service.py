@@ -1,11 +1,12 @@
 from datetime import datetime, timedelta
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from typing import List, Optional
 from fastapi import Request
 from src.database import AsyncSessionLocal
 from src.repositories import PostRepository, UserRepository
 from src.users.schemas import AuditLogCreate, PostCreate, UserCreate, UserUpdate
-from src.users.models import ActionType, UserAudit
+from src.users.models import ActionType, User, UserAudit
 import user_agents
 
 
@@ -166,7 +167,7 @@ class AuditLogService:
         """Retrieve audit logs with filtering options"""
         async with AsyncSessionLocal() as db:
 
-            query = select(UserAudit)
+            query = select(UserAudit).options(selectinload(UserAudit.performer))
             
             if user_id:
                 query = query.where(UserAudit.user_id == user_id)

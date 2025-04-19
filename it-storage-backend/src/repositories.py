@@ -1,3 +1,4 @@
+from functools import wraps
 from typing import Any, Dict, List
 from fastapi import HTTPException
 from sqlalchemy.future import select
@@ -5,13 +6,12 @@ from sqlalchemy.orm import Session,selectinload,joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.inspection import inspect
 from sqlalchemy.exc import NoResultFound,IntegrityError
-from src.departments.schemas import DepartmentCreate
 from src.departments.models import Department
 from src.objects.models import DynamicField, Object, ObjectCategory,ObjectDynamicFieldValue, SelectValue
-from src.objects.schemas import ObjectCategoryCreate
 from src.organizations.models import Organization
 from src.roles.models import Right, Role
 from src.users.models import Post, User
+from src.roles.schemas import EntityType,RightType
 from passlib.context import CryptContext
 import logging
 
@@ -37,6 +37,17 @@ class BaseRepository:
                     selectinload(Role.users),
                     selectinload(Role.children),
                     selectinload(Role.own_audits)
+                )
+            
+            if self.model.__name__ == "User":
+                return query.options(
+                    selectinload(User.roles).selectinload(Role.rights),
+                    selectinload(User.auth_logs),
+                    selectinload(User.department),
+                    selectinload(User.own_audits),
+                    selectinload(User.post),
+                    selectinload(User.role_audits),
+                    selectinload(User.user_audits)
                 )
         
             # Special handling for Right model
@@ -315,9 +326,82 @@ class ObjectRepository(BaseRepository):
 
 
 
+def check_permission(entity:EntityType,right:RightType):
+    def decorator(func):
+        @wraps(func)
+        async def wrapper(*args,**kwargs):
+            current_user = kwargs.get("current_user")
+            if current_user.is_system:
+                return await func(*args,**kwargs) 
+            if not any(
+                any([r.entity_type == entity and r.right_type == right for r in rr.rights])
+                 for rr in current_user.roles
+            ):
+                raise HTTPException(403,"Access denied")
+            return await func(*args,**kwargs)
+        return wrapper
+    return decorator
+
+
 class RoleRepository(BaseRepository):
     def __init__(self, db: Session):
         super().__init__(Role, db)
+
+
+    async def create(self,data:dict):
+        role = Role(name=data["name"],description=data["description"])
+
+        for right in data["rights"]:
+            r = None
+            res = await self.db.execute(select(Right).where(Right.entity_type==right["entity_type"].value,Right.right_type == right["right_type"].value))
+            r = res.scalar_one_or_none()
+            if not r:
+                r = Right(
+                    entity_type = right["entity_type"].value,
+                    right_type = right["right_type"].value
+                )
+            role.rights.append(r)
+        
+        self.db.add(role)
+        await self.db.commit()
+        await self.db.refresh(role)
+        return await self.get_by_id(role.id)
+
+
+    async def update(self,id: int, data:dict):
+        try:
+
+            role = await self.get_by_id(id)
+            if not role:
+                raise HTTPException(status_code=404,detail="Role not found")
+            
+            for key,value in data.items():
+                if key == "rights":
+                    role.rights.clear()
+                    for right in value:
+                        r = None
+                        res = await self.db.execute(select(Right).where(Right.entity_type==right["entity_type"].value,Right.right_type == right["right_type"].value))
+                        r = res.scalar_one_or_none()
+                        if not r:
+                            r = Right(
+                            entity_type = right["entity_type"].value,
+                            right_type = right["right_type"].value
+                        )
+                        role.rights.append(r)
+                
+                elif value is not None:
+                    setattr(role,key,value)
+            
+            await self.db.commit()
+            await self.db.refresh(role)
+            return role
+        
+        except Exception as e:
+            print(e)
+            raise
+
+                    
+
 
     async def add_user_to_role(self, role_id: int, user_data: dict):
         role = await self.get_by_id(role_id)

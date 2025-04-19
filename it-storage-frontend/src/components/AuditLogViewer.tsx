@@ -1,5 +1,8 @@
 import { fetchWithAuth } from "@/app/utils/fetchWithAuth"
 import { format } from "date-fns"
+import {EventSourcePolyfill} from "event-source-polyfill"
+import { useSession } from "next-auth/react"
+import Link from "next/link"
 import { useEffect, useState } from "react"
 
 interface AuditLog {
@@ -14,17 +17,18 @@ interface AuditLog {
     ip_address?: string
     user_agent?: string
     reason?: string
-    created_at: string
+    created_at: string,
+    performer:any
 }
   
 interface AuditLogViewerProps {
-    realtime?: boolean
     initialLogs?: AuditLog[]
 }
  
   
-export default function AuditLogViewer({realtime = true, initialLogs = []}: AuditLogViewerProps) {
+export default function AuditLogViewer({ initialLogs = []}: AuditLogViewerProps) {
     const [logs,setLogs] = useState<AuditLog[]>(initialLogs)
+    const session = useSession() as any
     const [loading,setLoading] = useState(false)
     const [error,setError] = useState<string | null>(null)
     const [filters, setFilters] = useState({
@@ -34,19 +38,6 @@ export default function AuditLogViewer({realtime = true, initialLogs = []}: Audi
         start_date: '',
         end_date: ''
       })
-    
-      useEffect(() => {
-        if (realtime) {
-            const eventSource = new EventSource(`http://backend:8000/audit/realtime`)
-
-            eventSource.onmessage = (event) => {
-                const data = JSON.parse(event.data)
-                setLogs(prev => [data, ...prev].slice(0,100))
-            }
-
-            return () => eventSource.close()
-        }
-      },[realtime])
       
       const loadLogs = async () => {
         setLoading(true)
@@ -196,7 +187,7 @@ export default function AuditLogViewer({realtime = true, initialLogs = []}: Audi
                       {log.entity_type}{log.entity_id ? ` (${log.entity_id})` : ''}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      Исполнитель #{log.performed_by}
+                      Исполнитель - <Link className="text-indigo-500" key={log.performer.id} href={`/users/${log.performer.id}`}>{log.performer.username}</Link> (id = {log.performed_by})
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {log.ip_address}

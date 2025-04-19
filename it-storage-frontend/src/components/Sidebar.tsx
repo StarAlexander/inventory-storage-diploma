@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FiHome, FiLogOut, FiUsers, FiSettings, FiLayers, FiTag, FiGrid, FiKey, FiBriefcase, FiUserCheck, FiAward, FiShield, FiX, FiMenu } from "react-icons/fi";
-import { usePageAccess } from "@/hooks/usePageAccess";
 import { signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -45,16 +44,6 @@ const navItems = [
     icon: <FiUserCheck className="w-5 h-5" />,
   },
   {
-    title: "Права",
-    href: "/rights",
-    icon: <FiKey className="w-5 h-5" />,
-  },
-  {
-    title: "Роли и права",
-    href: "/role-rights",
-    icon: <FiSettings className="w-5 h-5" />,
-  },
-  {
     title: "Пользователи",
     href: "/users",
     icon: <FiUsers className="w-5 h-5" />,
@@ -63,18 +52,11 @@ const navItems = [
     title: "Должности",
     href: "/posts",
     icon: <FiAward className="w-5 h-5" />,
-  },
-  {
-    title: "Контроль доступа",
-    href: "/access-control",
-    icon: <FiShield className="w-5 h-5" />,
-    adminOnly: true
   }
 ];
 
 export function Sidebar() {
     const pathname = usePathname();
-    const { hasAccess } = usePageAccess();
     const {data:session} = useSession()
     const isMobile = useMediaQuery("(max-width: 768px)");
     const [isOpen, setIsOpen] = useState(false);
@@ -92,10 +74,6 @@ export function Sidebar() {
       return () => { document.body.style.overflow = 'auto' };
     }, [isOpen, isMobile]);
     console.log(isAdmin)
-    const filteredItems = navItems.filter(item => {
-      if (item.adminOnly && !isAdmin) return false
-      return true
-    });
   
     if (pathname === '/login') return null;
   
@@ -139,7 +117,7 @@ export function Sidebar() {
             </div>
             
             <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-1">
-              {filteredItems.map((item) => (
+              {navItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}

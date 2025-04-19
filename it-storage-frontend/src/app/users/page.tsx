@@ -6,24 +6,16 @@ import { ConfirmModal } from "@/components/ConfirmModal";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useRouter } from "next/navigation";
 import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
-import { usePageAccess } from "@/hooks/usePageAccess";
 
 
 
 export default function UsersPage() {
   const router = useRouter();
-  const access = usePageAccess()
   const [users, setUsers] = useState<any[]>([]);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-
-  useEffect(()=> {
-    if (!access.isLoading && access.hasAccess === false) {
-      router.push('/unauthorized');
-    }
-  },[access.hasAccess,access.isLoading,router])
 
 
 
@@ -63,16 +55,7 @@ export default function UsersPage() {
   };
 
   if (isLoading) return <LoadingSpinner />;
-  if (error) return <div className="text-red-500 p-4">{error}</div>;
-  if (access.isLoading) 
-    return (
-      <div className="min-h-screen bg-gray-50 p-4 md:p-8 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Проверка прав доступа...</p>
-        </div>
-      </div>
-    );
+  if (error) return <div className="text-red-500 p-4">{error}</div>
   return (
     <div className="container mx-auto p-4">
   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">

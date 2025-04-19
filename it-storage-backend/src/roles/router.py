@@ -1,11 +1,13 @@
 from typing import List
-from fastapi import HTTPException,APIRouter
-from sqlalchemy import and_, delete, insert, select
+from fastapi import Depends, HTTPException,APIRouter
+from sqlalchemy import select
+from src.repositories import check_permission
 from sqlalchemy.orm import selectinload
-from src.roles.schemas import BulkUpdateRequest, PageCreate, PageUpdate, RightCreate, RightSchema, RoleCreate, RoleRightCreate, RoleRightResponse, RoleSchema
-from src.roles.service import RightsService, RoleService
+from src.roles.schemas import EntityType,RightType, RoleCreate, RoleSchema
+from src.roles.service import RoleService
+from src.utils.get_current_user import get_current_user
 from src.database import AsyncSessionLocal
-from src.roles.models import Page, Right, Role, role_rights
+from src.roles.models import Role
 import logging
 
 logger = logging.getLogger('app')
@@ -15,17 +17,20 @@ app = APIRouter(tags=["Roles, Rights"])
 
 
 @app.post("/roles/", response_model=RoleSchema)
-async def create_role(role: RoleCreate):
+@check_permission(EntityType.ROLES,RightType.CREATE)
+async def create_role(role: RoleCreate,current_user = Depends(get_current_user)):
     return await RoleService.create_role(role)
 
 
 @app.get("/roles/", response_model=List[RoleSchema])
-async def list_roles():
+@check_permission(EntityType.ROLES,RightType.READ)
+async def list_roles(current_user = Depends(get_current_user)):
     return await RoleService.get_all_roles()
 
 
 @app.get("/roles/hierarchy")
-async def get_roles_hierarchy():
+@check_permission(EntityType.ROLES,RightType.READ)
+async def get_roles_hierarchy(current_user = Depends(get_current_user)):
     try:
         async with AsyncSessionLocal() as db:
             result = await db.execute(
@@ -40,7 +45,8 @@ async def get_roles_hierarchy():
         raise HTTPException(status_code=500,detail=str(e))
 
 @app.get("/roles/{role_id}")
-async def get_role(role_id: int):
+@check_permission(EntityType.ROLES,RightType.READ)
+async def get_role(role_id: int,current_user = Depends(get_current_user)):
     try:
 
         role = await RoleService.get_role_by_id(role_id)
@@ -52,7 +58,8 @@ async def get_role(role_id: int):
 
 
 @app.put("/roles/{role_id}", response_model=RoleSchema)
-async def update_role(role_id: int, role: RoleCreate):
+@check_permission(EntityType.ROLES,RightType.UPDATE)
+async def update_role(role_id: int, role: RoleCreate,current_user = Depends(get_current_user)):
     role = await RoleService.update_role(role_id, role)
     if not role:
         raise HTTPException(status_code=404, detail="Role not found")
@@ -60,14 +67,18 @@ async def update_role(role_id: int, role: RoleCreate):
 
 
 @app.delete("/roles/{role_id}")
+@check_permission(EntityType.ROLES,RightType.DELETE)
 async def delete_role(role_id: int):
-    role = await RoleService.delete_role(role_id)
+    role = await RoleService.delete_role(role_id,current_user = Depends(get_current_user))
     if not role:
         raise HTTPException(status_code=404, detail="Role not found")
     return role
 
 
+"""
+
 @app.post("/rights/",response_model=RightSchema)
+@check_permission(EntityType.ROLE_PERMISSIONS,RightType.CREATE)
 async def create_right(right:RightCreate):
     try:
         right = await RightsService.create_right(right)
@@ -77,6 +88,7 @@ async def create_right(right:RightCreate):
 
 
 @app.get("/rights/",response_model=List[RightSchema])
+@check_permission(EntityType.ROLE_PERMISSIONS,RightType.READ)
 async def get_rights():
     try:
         rights = await RightsService.get_all_rights()
@@ -87,6 +99,7 @@ async def get_rights():
 
 
 @app.get("/rights/{id}",response_model=RightSchema)
+@check_permission(EntityType.ROLE_PERMISSIONS,RightType.READ)
 async def get_right_by_id(id: int):
     try:
         right = await RightsService.get_right_by_id(id)
@@ -97,6 +110,7 @@ async def get_right_by_id(id: int):
 
 
 @app.put("/rights/{id}",response_model=RightSchema)
+@check_permission(EntityType.ROLE_PERMISSIONS,RightType.UPDATE)
 async def update_right(id:int,data:RightCreate):
     try:
         right = await RightsService.update_right(id,data)
@@ -107,6 +121,7 @@ async def update_right(id:int,data:RightCreate):
     
 
 @app.delete("/rights/{id}")
+@check_permission(EntityType.ROLE_PERMISSIONS,RightType.DELETE)
 async def delete_right(id:int):
     try:
         msg = await RightsService.delete_right(id)
@@ -324,3 +339,6 @@ async def delete_page(page_id: int):
         await db.delete(db_page)
         await db.commit()
         return {"message": "Page deleted successfully"}
+
+"""
+

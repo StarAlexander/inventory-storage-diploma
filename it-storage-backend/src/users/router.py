@@ -3,10 +3,13 @@ from datetime import datetime
 from dateutil.parser import parse
 import json
 from fastapi.responses import StreamingResponse
-from typing import List, Optional
+from typing import Optional
 from fastapi import Depends, HTTPException,APIRouter, Query, Request
 from sqlalchemy import select
-from src.users.schemas import AuditLogFilter, AuditLogResponse, AuthLogResponse, PostCreate, PostSchema, UserCreate, UserResponse, UserUpdate
+from src.repositories import check_permission
+from src.utils.get_current_user import get_current_user
+from src.roles.schemas import EntityType, RightType
+from src.users.schemas import AuditLogResponse, PostCreate, UserCreate, UserUpdate
 from src.users.service import AuditLogService, UserService, PostsService
 from src.users.models import AuthLog, UserAudit
 from src.database import AsyncSessionLocal
@@ -15,17 +18,18 @@ from src.database import AsyncSessionLocal
 app = APIRouter(tags=["Users, Posts"])
 
 @app.post("/users/register")
-async def create_user(user: UserCreate):
+async def create_user(user: UserCreate,current_user = Depends(get_current_user)):
     return await UserService.create_user(user)
 
 
 @app.get("/users/")
-async def list_users():
+@check_permission(EntityType.USERS, RightType.READ)
+async def list_users(current_user = Depends(get_current_user)):
     return await UserService.get_all_users()
 
 
 @app.get("/users/{user_id}")
-async def get_user(user_id: int):
+async def get_user(user_id: int,current_user = Depends(get_current_user)):
     user = await UserService.get_user_by_id(user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -33,7 +37,8 @@ async def get_user(user_id: int):
 
 
 @app.put("/users/{user_id}")
-async def update_user(user_id: int, user: UserUpdate):
+@check_permission(EntityType.USERS, RightType.UPDATE)
+async def update_user(user_id: int, user: UserUpdate,current_user = Depends(get_current_user)):
     user = await UserService.update_user(user_id, user)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -41,14 +46,16 @@ async def update_user(user_id: int, user: UserUpdate):
 
 
 @app.delete("/users/{user_id}")
-async def delete_user(user_id: int):
+@check_permission(EntityType.USERS, RightType.DELETE)
+async def delete_user(user_id: int,current_user = Depends(get_current_user)):
     user = await UserService.delete_user(user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
 @app.post("/users/{user_id}/roles/{role_id}")
-async def add_role_to_user(user_id: int, role_id: int):
+@check_permission(EntityType.USERS, RightType.UPDATE)
+async def add_role_to_user(user_id: int, role_id: int,current_user = Depends(get_current_user)):
     try:
 
         result = await UserService.add_role_to_user(user_id, role_id)
@@ -61,7 +68,8 @@ async def add_role_to_user(user_id: int, role_id: int):
 
 
 @app.delete("/users/{user_id}/roles/{role_id}")
-async def delete_role_from_user(user_id: int, role_id:int):
+@check_permission(EntityType.USERS, RightType.UPDATE)
+async def delete_role_from_user(user_id: int, role_id:int,current_user = Depends(get_current_user)):
     try:
 
         result = await UserService.remove_role_from_user(user_id,role_id)
@@ -74,7 +82,8 @@ async def delete_role_from_user(user_id: int, role_id:int):
 
 # Создание должности
 @app.post("/posts/")
-async def create_post(post: PostCreate):
+@check_permission(EntityType.POSTS, RightType.CREATE)
+async def create_post(post: PostCreate,current_user = Depends(get_current_user)):
     try:
         return await PostsService.create_post(post)
     except Exception as e:
@@ -84,7 +93,8 @@ async def create_post(post: PostCreate):
 
 # Получение всех должностей
 @app.get("/posts/")
-async def list_posts():
+@check_permission(EntityType.POSTS, RightType.READ)
+async def list_posts(current_user = Depends(get_current_user)):
     try:
 
         return await PostsService.get_all_posts()
@@ -96,7 +106,8 @@ async def list_posts():
 
 # Получение должности по ID
 @app.get("/posts/{post_id}")
-async def get_post(post_id: int):
+@check_permission(EntityType.POSTS, RightType.READ)
+async def get_post(post_id: int,current_user = Depends(get_current_user)):
     post = await PostsService.get_post_by_id(post_id)
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
@@ -105,25 +116,29 @@ async def get_post(post_id: int):
 
 # Обновление должности
 @app.put("/posts/{post_id}")
-async def update_post(post_id: int, post: PostCreate):
+@check_permission(EntityType.POSTS, RightType.UPDATE)
+async def update_post(post_id: int, post: PostCreate,current_user = Depends(get_current_user)):
     return await PostsService.update_post(post_id, post)
 
 
 # Удаление должности
 @app.delete("/posts/{post_id}")
-async def delete_post(post_id: int):
+@check_permission(EntityType.POSTS, RightType.DELETE)
+async def delete_post(post_id: int,current_user = Depends(get_current_user)):
     return await PostsService.delete_post(post_id)
 
 
 # Привязка пользователя к должности
 @app.post("/posts/{post_id}/users/{user_id}")
-async def assign_user_to_post(post_id: int, user_id: int):
+@check_permission(EntityType.POSTS, RightType.UPDATE)
+async def assign_user_to_post(post_id: int, user_id: int,current_user = Depends(get_current_user)):
     return await PostsService.assign_user_to_post(post_id, user_id)
 
 
 # Отвязка пользователя от должности
 @app.delete("/posts/{post_id}/users/{user_id}")
-async def unassign_user_from_post(post_id: int, user_id: int):
+@check_permission(EntityType.POSTS, RightType.UPDATE)
+async def unassign_user_from_post(post_id: int, user_id: int,current_user = Depends(get_current_user)):
     return await PostsService.unassign_user_from_post(post_id, user_id)
 
 
@@ -136,7 +151,8 @@ async def get_audit_logs(
     user_id: Optional[str] = Query(None),  # Changed to string
     start_date: Optional[str] = Query(None),  # Changed to string
     end_date: Optional[str] = Query(None),  # Changed to string
-    limit: int = Query(100)
+    limit: int = Query(100),
+    current_user = Depends(get_current_user)
 ):
     """Get filtered audit logs"""
     try:
@@ -169,40 +185,11 @@ async def get_audit_logs(
 
 @app.get("/user-logs/recent")
 async def get_recent_logs(
-    hours: int = 24
+    hours: int = 24,
+    current_user = Depends(get_current_user)
 ):
     """Get recent audit logs"""
     return await AuditLogService.get_recent_logs(hours)
-
-@app.get("/user-logs/realtime")
-async def stream_audit_logs(request: Request):
-    """SSE endpoint for real-time audit logs"""
-    async def event_generator():
-        last_id = None
-        async with AsyncSessionLocal() as db:
-
-            while True:
-                if await request.is_disconnected():
-                    break
-                    
-                # Get new logs since last_id
-                query = select(UserAudit)
-                if last_id:
-                    query = query.where(UserAudit.id > last_id)
-                    
-                new_logs = await db.execute(query.order_by(UserAudit.created_at.desc()).limit(10))
-                new_logs = new_logs.scalars().all()
-                if new_logs:
-                    last_id = new_logs[0].id
-                    for log in reversed(new_logs):  # Send oldest first
-                        yield {
-                            "event": "audit_log",
-                            "data": json.dumps(AuditLogResponse.model_validate(log).model_dump())
-                        }
-                
-                await asyncio.sleep(1)  # Check for new logs every second
-    
-    return StreamingResponse(event_generator())
 
 @app.get("/auth/logs")
 async def get_auth_logs(
@@ -210,7 +197,8 @@ async def get_auth_logs(
     action: Optional[str] = None,
     start_date: Optional[datetime] = None,
     end_date: Optional[datetime] = None,
-    limit: int = 100
+    limit: int = 100,
+    current_user = Depends(get_current_user)
 ):
     """Get authentication logs with filtering options"""
     try:

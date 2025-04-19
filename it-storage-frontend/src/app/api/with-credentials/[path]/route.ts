@@ -87,6 +87,13 @@ async function handleProxyRequest(req: NextRequest) {
         }
       )
     }
+    if (error.toString().includes("Access denied")) {
+      return NextResponse.json({
+        error:"Access denied"
+      },{
+        status:403
+      })
+    }
 
     return NextResponse.json(
       { error: error.message || 'Internal Server Error' }, 

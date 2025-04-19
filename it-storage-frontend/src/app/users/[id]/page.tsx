@@ -4,6 +4,7 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function UserDetailPage() {
     const router = useRouter();
@@ -26,6 +27,29 @@ export default function UserDetailPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showPasswordHint,setShowPasswordHint] = useState(false)
+    const [showPassword, setShowPassword] = useState(false);
+    const [passwordStrength, setPasswordStrength] = useState({
+      length: false,
+      letter: false,
+      number: false,
+      special: false
+    });
+
+
+    const checkPasswordStrength = (password: string) => {
+      setPasswordStrength({
+        length: password.length >= 8,
+        letter: /[a-zA-Z]/.test(password),
+        number: /\d/.test(password),
+        special: /[@$!%*?&]/.test(password)
+      });
+    };
+
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { value } = e.target;
+      setUser(prev => ({ ...prev, password: value }));
+      checkPasswordStrength(value);
+    };
   
     useEffect(() => {
       if (!isEditing) return;
@@ -203,26 +227,39 @@ export default function UserDetailPage() {
   
               {!isEditing && (
                 <div className="relative">
-                <label className="block text-sm font-medium text-gray-700">Пароль</label>
+                <label className="block text-sm font-medium text-gray-700">Пароль *</label>
+                <div className="relative mt-1">
                 <input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={user.password}
-                  onChange={handleChange}
+                  onChange={handlePasswordChange}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   required
                   onFocus={() => setShowPasswordHint(true)}
                   onBlur={() => setShowPasswordHint(false)}
                 />
+                <button
+              type="button"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? (
+                <EyeOff className="h-5 w-5 text-gray-400" />
+              ) : (
+                <Eye className="h-5 w-5 text-gray-400" />
+              )}
+            </button>
+                </div>
                 {showPasswordHint && (
-                  <div className="absolute z-50 mt-2 w-64 p-3 bg-white border border-gray-200 rounded-md shadow-lg overflow-visible">
+                  <div className=" absolute mt-2 p-3 z-100 bg-white border border-gray-200 rounded-md shadow-lg overflow-visible">
                     <p className="text-sm font-medium text-gray-800">Требования к паролю:</p>
-                    <ul className="mt-1 text-sm text-gray-600 list-disc pl-5 space-y-1">
-                      <li>Минимум 8 символов</li>
-                      <li>Хотя бы одна буква</li>
-                      <li>Хотя бы одна цифра</li>
-                      <li>Хотя бы один специальный символ (@$!%*?&)</li>
+                    <ul className="mt-1 text-sm text-gray-600 space-y-1">
+                      <li className={`flex items-center ${passwordStrength.length ? 'text-green-600' : ''}`}><span className="mr-1">✓</span>Минимум 8 символов</li>
+                      <li className={`flex items-center ${passwordStrength.letter ? 'text-green-600' : ''}`}><span className="mr-1">✓</span>Хотя бы одна буква</li>
+                      <li className={`flex items-center ${passwordStrength.number ? 'text-green-600' : ''}`}><span className="mr-1">✓</span>Хотя бы одна цифра</li>
+                      <li className={`flex items-center ${passwordStrength.special ? 'text-green-600' : ''}`}><span className="mr-1">✓</span>Хотя бы один специальный символ (@$!%*?&)</li>
                     </ul>
                   </div>
                 )}
