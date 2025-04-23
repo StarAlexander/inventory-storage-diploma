@@ -18,7 +18,8 @@ enum EntityType {
   ROLES = "roles",
   PERMISSIONS = "permissions",
   USERS = "users",
-  POSITIONS = "positions"
+  POSITIONS = "positions",
+  REPORTS = "reports"
 }
 
 enum PermissionType {

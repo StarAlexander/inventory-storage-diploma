@@ -7,6 +7,12 @@ class ObjectCategoryService:
 
 
     @staticmethod
+    async def count():
+        async with AsyncSessionLocal() as session:
+            return await ObjectCategoryRepository(session).count()
+
+
+    @staticmethod
     async def create_category(data: ObjectCategoryCreate):
         async with AsyncSessionLocal() as session:
             repo = ObjectCategoryRepository(session)
@@ -34,7 +40,6 @@ class ObjectCategoryService:
     
 
 class DynamicFieldService:
-
 
     @staticmethod
     async def create_field(data: DynamicFieldCreate):
@@ -64,6 +69,14 @@ class DynamicFieldService:
     
 
 class ObjectService:
+
+
+
+
+    @staticmethod
+    async def count():
+        async with AsyncSessionLocal() as session:
+            return await ObjectRepository(session).count()
     @staticmethod
     async def create_object( data: ObjectCreate):
         async with AsyncSessionLocal() as session:

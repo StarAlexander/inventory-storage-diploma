@@ -52,6 +52,11 @@ const navItems = [
     title: "Должности",
     href: "/posts",
     icon: <FiAward className="w-5 h-5" />,
+  },
+  {
+    title: "Отчетность",
+    href: "/reports",
+    icon: <FiShield className="w-5 h-5" />,
   }
 ];
 
@@ -60,12 +65,8 @@ export function Sidebar() {
     const {data:session} = useSession()
     const isMobile = useMediaQuery("(max-width: 768px)");
     const [isOpen, setIsOpen] = useState(false);
-    const [isAdmin,setIsAdmin] = useState(false)
   
     useEffect(() => {
-      if (session?.user) {
-        setIsAdmin(session?.user?.username == "admin")
-      }
       if (isMobile) setIsOpen(false);
     }, [pathname, isMobile,session]);
   
@@ -73,7 +74,6 @@ export function Sidebar() {
       document.body.style.overflow = isMobile && isOpen ? 'hidden' : 'auto';
       return () => { document.body.style.overflow = 'auto' };
     }, [isOpen, isMobile]);
-    console.log(isAdmin)
   
     if (pathname === '/login') return null;
   
@@ -114,6 +114,10 @@ export function Sidebar() {
           <div className="relative z-10 h-full flex flex-col bg-white">
             <div className="px-6 py-5 border-b border-gray-100">
               <h1 className="text-xl font-bold text-gray-800">Система управления</h1>
+              <div className="mt-4">
+                <p className="text-lg font-medium text-gray-700">{session?.user?.username}</p>
+                {(session?.user as any)?.is_system && <p className="text-sm text-blue-500">Суперпользователь</p>}
+                </div>
             </div>
             
             <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-1">

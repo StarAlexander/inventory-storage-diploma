@@ -5,7 +5,7 @@ from src.roles.schemas import RightCreate, RoleCreate
 
 class RoleService:
 
-
+    
     @staticmethod
     async def create_role(data: RoleCreate):
         async with AsyncSessionLocal() as session:

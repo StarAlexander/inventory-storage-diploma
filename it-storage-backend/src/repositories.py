@@ -137,6 +137,10 @@ class BaseRepository:
             logger.info(e)
             await self.db.rollback()
             raise HTTPException(status_code=500, detail=str(e))
+        
+    async def count(self):
+        res = await self.db.execute(select(self.model))
+        return len(res.scalars().all())
 
 
 

@@ -17,6 +17,7 @@ class EntityType(str, Enum):
     ROLE_PERMISSIONS = "role_rights"
     USERS = "users"
     POSTS = "posts"
+    REPORTS = "reports"
 
 class RightType(str, Enum):
     READ = "read"

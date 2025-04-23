@@ -12,6 +12,14 @@ import user_agents
 
 class UserService:
 
+
+
+    @staticmethod
+    async def count():
+        async with AsyncSessionLocal() as session:
+            return await UserRepository(session).count()
+        
+
     @staticmethod
     async def create_user(data: UserCreate):
         async with AsyncSessionLocal() as session:

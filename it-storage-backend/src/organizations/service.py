@@ -13,6 +13,15 @@ logger = logging.getLogger("app")
 
 class OrganizationService:
 
+
+
+
+    @staticmethod
+    async def count():
+        async with AsyncSessionLocal() as session:
+            return await OrganizationRepository(session).count()
+        
+
     @staticmethod
     async def create_organization(data: OrganizationBase):
 

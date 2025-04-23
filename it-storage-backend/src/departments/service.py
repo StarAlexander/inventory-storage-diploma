@@ -6,6 +6,12 @@ from src.repositories import DepartmentRepository
 class DepartmentService:
 
 
+
+    @staticmethod
+    async def count():
+        async with AsyncSessionLocal() as session:
+            return await DepartmentRepository(session).count()
+
     @staticmethod
     async def create_department(data: DepartmentCreate):
         async with AsyncSessionLocal() as session:

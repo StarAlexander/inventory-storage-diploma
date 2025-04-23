@@ -6,34 +6,33 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List, Optional
-from fastapi import Depends, FastAPI, HTTPException, Request, Response,status
+from typing import Optional
+from fastapi import Depends, FastAPI, HTTPException, Request, status
 import logging
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
 from src.organizations.service import OrganizationService
 from src.organizations.schemas import OrganizationBase
 from src.departments.service import DepartmentService
 from src.departments.schemas import DepartmentCreate
-from src.objects.service import ObjectCategoryService, DynamicFieldService, ObjectService
-from src.objects.schemas import ObjectCreate,ObjectCategoryCreate,DynamicFieldCreate
+from src.objects.service import ObjectCategoryService
+from src.objects.schemas import ObjectCategoryCreate
 from src.database import AsyncSessionLocal, engine
-from src.repositories import pwd_context,UserRepository
+from src.repositories import pwd_context
 from src.departments.router import app as dep_router
 from src.objects.router import app as obj_router
 from src.organizations.router import app as org_router
 from src.roles.router import app as roles_router
 from src.users.router import app as users_router
+from src.reports.router import app as reports_router
 from src.users.schemas import UserCreate
 from src.users.models import AuthLog, User, UserAudit
 from src.roles.models import Page, Right, Role
 from dotenv import load_dotenv
 from jose import JWTError, jwt
 import os
-from src.users.schemas import UserResponse
 from src.users.service import UserService
-from src.database import Base,get_database
+from src.database import Base
 
 load_dotenv()
 
@@ -104,6 +103,7 @@ app.include_router(obj_router)
 app.include_router(org_router)
 app.include_router(roles_router)
 app.include_router(users_router)
+app.include_router(reports_router)
 
 # Логгер
 
