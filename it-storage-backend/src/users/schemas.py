@@ -126,6 +126,7 @@ class AuditLogFilter(BaseModel):
 class PostCreate(BaseModel):
     name:str
     description:str
+    organization_id: int
 
 
 class PostSchema(PostCreate):

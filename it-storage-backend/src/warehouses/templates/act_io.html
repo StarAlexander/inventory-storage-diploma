@@ -1,0 +1,158 @@
+<div class="body-scoped">
+<style>
+        
+        .body-scoped {
+            font-family: Arial, sans-serif;
+            box-sizing: border-box;
+            margin: 0;
+            font-size: 12px;
+            line-height: 1.6;
+            padding: 10px;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        
+        .table-scoped {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        .th-scoped, .td-scoped {
+            border: 1px solid black;
+            padding: 5px;
+            text-align: center;
+            word-break: break-word;
+        }
+        
+        .h1-scoped {
+            font-size: 1.5rem;
+            margin: 10px 0;
+        }
+        
+        .h3-scoped {
+            font-size: 1rem;
+            margin-right: 10px;
+            white-space: nowrap;
+        }
+        
+        .org-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            padding: 10px 0;
+        }
+        
+        .underline {
+            text-decoration: underline;
+        }
+        
+        .text-end {
+            text-align: end;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        /* Адаптация для маленьких экранов */
+        @media (max-width: 768px) {
+            .body-scoped {
+                font-size: 10px;
+            }
+            
+            .h1-scoped {
+                font-size: 1.2rem;
+            }
+            
+            .h3-scoped {
+                font-size: 0.9rem;
+            }
+            
+            .th-scoped, .td-scoped {
+                padding: 3px;
+                font-size: 10px;
+            }
+            
+            .responsive-table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            
+            .h1-scoped {
+                font-size: 1rem;
+            }
+            
+            .h3-scoped {
+                font-size: 0.8rem;
+            }
+            
+            .org-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .org-container h3 {
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+    <!-- Заголовок -->
+    <p class="text-end">Типовая межотраслевая форма № М-11</p>
+    <p class="text-end">Утверждена постановлением Госкомстата России от 30.10.97 № 71а</p>
+    <h1 class="text-center h1-scoped">ТРЕБОВАНИЕ-НАКЛАДНАЯ № <span class="underline">{{ doc.id }}</span></h1>
+    
+    <div class="org-container">
+        <h3 class="h3-scoped">Организация</h3>
+        <span class="underline">{{ warehouse.organization.name }}</span>
+    </div>
+    
+    <div class="responsive-table">
+        <table class="table-scoped">
+            <thead>
+                <tr>
+                    <th class="th-scoped">Дата составления</th>
+                    <th class="th-scoped">Код операции</th>
+                    <th class="th-scoped">Отправитель</th>
+                    <th class="th-scoped">Получатель</th>
+                    <th class="th-scoped">Учетная единица выпуска продукции</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="td-scoped">{{ doc.generated_at.strftime('%d.%m.%Y') }}</td>
+                    <td class="td-scoped">{{ transaction.id }}</td>
+                    <td class="td-scoped">{{ from_zone.department.name or "Не указана" }}</td>
+                    <td class="td-scoped">{{ to_zone.department.name or "Не указана"  }}</td>
+                    <td class="td-scoped">шт.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Таблица требований -->
+    <div class="responsive-table">
+        <table class="table-scoped" style="margin-top: 20px;">
+            <thead>
+                <tr>
+                    <th class="th-scoped">Серийный номер</th>
+                    <th class="th-scoped">Номенклатурный номер</th>
+                    <th class="th-scoped">Цена</th>
+                    <th class="th-scoped">Инвентарный номер</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="td-scoped">{{ item.serial_number }}</td>
+                    <td class="td-scoped">{{ item.category.name }}</td>
+                    <td class="td-scoped">{{ item.cost }}</td>
+                    <td class="td-scoped">{{ item.inventory_number }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    </div>

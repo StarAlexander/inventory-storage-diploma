@@ -20,6 +20,8 @@ class User(Base):
     is_system = Column(Boolean, default=False)
     created_at = Column(TIMESTAMP, default=func.now())
     updated_at = Column(TIMESTAMP, default=func.now(), onupdate=func.now())
+    public_key = Column(String(1024))
+    private_key = Column(String(1024))
     own_audits = relationship("UserAudit",foreign_keys="[UserAudit.user_id]",back_populates="user")
     user_audits = relationship("UserAudit",foreign_keys="[UserAudit.performed_by]",back_populates="performer")
     auth_logs = relationship("AuthLog", back_populates="user")
@@ -39,6 +41,10 @@ class User(Base):
     # Связь для должности
     post_id = Column(Integer, ForeignKey("posts.id", ondelete="SET NULL"))
     post = relationship("Post", back_populates="users")
+
+    # Связь для складов
+    managed_warehouses = relationship("Warehouse", back_populates="manager")
+    transactions = relationship("WarehouseTransaction", back_populates="user")
 
 
 class ActionType(str, Enum):
@@ -94,5 +100,7 @@ class Post(Base):
     description = Column(Text)
     created_at = Column(TIMESTAMP, default=func.now())
     updated_at = Column(TIMESTAMP, default=func.now(), onupdate=func.now())
+    organization_id = Column(Integer,ForeignKey("organizations.id"))
 
+    organization = relationship("Organization")
     users = relationship("User", back_populates="post")

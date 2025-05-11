@@ -142,6 +142,11 @@ async def unassign_user_from_post(post_id: int, user_id: int,current_user = Depe
     return await PostsService.unassign_user_from_post(post_id, user_id)
 
 
+@app.get("/posts/users/organizations/{org_id}")
+@check_permission(EntityType.POSTS,RightType.READ)
+async def get_users_by_organization(org_id: int, current_user = Depends(get_current_user)):
+    return await PostsService.get_users_by_organization(org_id)
+
 # Аудит
 
 @app.get("/user-logs")

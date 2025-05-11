@@ -5,26 +5,6 @@ from src.database import Base
 
 
 
-page_right_association = Table(
-    'page_right_association',
-    Base.metadata,
-    Column('page_id', Integer, ForeignKey('pages.id')),
-    Column('right_id', Integer, ForeignKey('rights.id'))
-)
-
-class Page(Base):
-    __tablename__ = 'pages'
-    
-    id = Column(Integer, primary_key=True, index=True)
-    path = Column(String(50), unique=True, index=True)
-    name = Column(String(100))
-    description = Column(String(150), nullable=True)
-    created_at = Column(TIMESTAMP, default=func.now())
-    updated_at = Column(TIMESTAMP, default=func.now(), onupdate=func.now())
-    
-    # Relationship to rights through association table
-    required_rights = relationship("Right", secondary=page_right_association, back_populates="pages")
-
 
 
 
@@ -53,8 +33,6 @@ class Right(Base):
     updated_at = Column(TIMESTAMP, default=func.now(), onupdate=func.now())
     parent_id = Column(Integer, ForeignKey("rights.id", ondelete="SET NULL"))
     departments = relationship("DepartmentRights",back_populates="right")
-
-    pages = relationship("Page", secondary=page_right_association, back_populates="required_rights")
     # Связь для наследования прав
     roles = relationship(
         "Role", 

@@ -1,6 +1,12 @@
 from typing import Dict
+
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from src.objects.schemas import ObjectCategoryCreate, DynamicFieldCreate, ObjectCreate, ObjectUpdate
 from src.repositories import DynamicFieldRepository, ObjectCategoryRepository, ObjectRepository
+from src.objects.models import Object,ObjectCategory
+from src.organizations.models import Organization
+from src.departments.models import Department
 from src.database import AsyncSessionLocal
 
 class ObjectCategoryService:
@@ -89,6 +95,31 @@ class ObjectService:
         async with AsyncSessionLocal() as session:
             repo = ObjectRepository(session)
             return await repo.get_all()
+        
+    
+    @staticmethod
+    async def search_objects(query:str):
+        async with AsyncSessionLocal() as db:
+            result = await db.execute(
+                select(Object)
+                .options(selectinload(Object.department).selectinload(Department.organization),
+                         selectinload(Object.category))
+                .where(Object.name.ilike(f"%{query}%"))
+                .limit(10)
+            )
+            objects = result.unique().scalars().all()
+
+            return [
+                {
+                    "id": obj.id,
+                    "name": obj.name,
+                    "organization": obj.department.organization if obj.department and obj.department.organization else None,
+                    "department": obj.department if obj.department else None,
+                    "category": obj.category if obj.category else None,
+                }
+                for obj in objects
+            ]
+
     @staticmethod
     async def get_object_by_id( id: int):
         async with AsyncSessionLocal() as session:

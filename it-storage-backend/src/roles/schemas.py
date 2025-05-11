@@ -18,6 +18,10 @@ class EntityType(str, Enum):
     USERS = "users"
     POSTS = "posts"
     REPORTS = "reports"
+    WAREHOUSES = "warehouses"
+    WAREHOUSE_ZONES = "warehouse_zones"
+    WAREHOUSE_TRANSACTIONS = "warehouse_transactions"
+    WAREHOUSE_DOCUMENTS = "warehouse_documents"
 
 class RightType(str, Enum):
     READ = "read"

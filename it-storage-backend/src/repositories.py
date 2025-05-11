@@ -12,6 +12,7 @@ from src.organizations.models import Organization
 from src.roles.models import Right, Role
 from src.users.models import Post, User
 from src.roles.schemas import EntityType,RightType
+from src.utils.load_relationships import load_relationships
 from passlib.context import CryptContext
 import logging
 
@@ -548,10 +549,12 @@ class UserRepository(BaseRepository):
     def __init__(self, db: Session):
         super().__init__(User, db)
 
-    async def create(self, data: dict):
+    async def create(self, data: dict, keys:dict):
         try:
             data["password"] = pwd_context.hash(data["password"])
             obj = self.model(**data)
+            obj.public_key = keys["public_key"]
+            obj.private_key = keys["private_key"]
             self.db.add(obj)
             await self.db.commit()
             await self.db.refresh(obj)
@@ -673,3 +676,10 @@ class PostRepository(BaseRepository):
         await self.db.refresh(post)
         
         return {"message": f"User {user_id} unassigned from Post {post_id}"}
+    
+    async def get_users_by_organization(self,org_id:int):
+
+        p_res = await self.db.execute(select(Post).where(Post.organization_id == org_id))
+        posts = p_res.scalars().all()
+        u_res = await self.db.execute(load_relationships(User,select(User).where(User.post_id.in_([p.id for p in posts]))))
+        return u_res.unique().scalars().all()

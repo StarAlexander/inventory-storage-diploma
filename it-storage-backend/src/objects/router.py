@@ -1,5 +1,6 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.params import Query
 from src.repositories import check_permission
 from src.utils.get_current_user import get_current_user
 from src.roles.schemas import EntityType, RightType
@@ -121,6 +122,12 @@ async def list_objects(current_user = Depends(get_current_user)):
     return await ObjectService.get_all_objects()
 
 
+@app.get("/objects/search")
+@check_permission(EntityType.OBJECTS,RightType.READ)
+async def search_objects(query = Query(...), current_user=Depends(get_current_user)):
+    """Поиск объектов по подстроке"""
+    return await ObjectService.search_objects(query)
+    
 @app.get("/objects/{obj_id}")
 @check_permission(EntityType.OBJECTS,RightType.READ)
 async def get_object(obj_id: int,current_user = Depends(get_current_user)):

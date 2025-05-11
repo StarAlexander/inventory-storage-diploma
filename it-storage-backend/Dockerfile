@@ -4,6 +4,25 @@ FROM python:3.12-slim
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
+# Установка системных зависимостей для WeasyPrint
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        build-essential \
+        libpango1.0-0 \
+        libcairo2 \
+        libgdk-pixbuf2.0-0 \
+        libglib2.0-0 \
+        libjpeg-dev \
+        zlib1g-dev \
+        libpng-dev \
+        libxml2-dev \
+        libxslt1-dev \
+        g++ \
+        && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+
 # Копируем зависимости
 COPY requirements/prod.txt .
 

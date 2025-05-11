@@ -1,7 +1,7 @@
-from datetime import datetime
-from sqlalchemy import JSON, UniqueConstraint, TIMESTAMP, Boolean, Column, Enum, Float, ForeignKey, Integer, String, Table, Text, func
+from sqlalchemy import JSON, UniqueConstraint, TIMESTAMP, Boolean, Column, Enum, Float, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import relationship
 from src.database import Base
+from src.warehouses.models import WarehouseTransaction
 
 
 
@@ -73,6 +73,7 @@ class Object(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     category_id = Column(Integer, ForeignKey("object_categories.id", ondelete="SET NULL"))
     department_id = Column(Integer, ForeignKey("departments.id", ondelete="SET NULL"))
+    location_id = Column(Integer,ForeignKey("warehouse_zones.id",ondelete="SET NULL"))
     name = Column(String(255), nullable=False)
     description = Column(Text)
     inventory_number = Column(String(50), nullable=False)
@@ -91,6 +92,8 @@ class Object(Base):
         cascade="all, delete-orphan"
     )
 
+    transactions = relationship(WarehouseTransaction, back_populates="equipment")
+    location = relationship("WarehouseZone",back_populates="equipments")
     requests = relationship("Request",back_populates="object")
 
     __table_args__ = (

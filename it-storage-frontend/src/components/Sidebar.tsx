@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FiHome, FiLogOut, FiUsers, FiSettings, FiLayers, FiTag, FiGrid, FiKey, FiBriefcase, FiUserCheck, FiAward, FiShield, FiX, FiMenu } from "react-icons/fi";
+import { FiHome, FiLogOut, FiUsers, FiSettings, FiLayers, FiTag, FiGrid, FiKey, FiBriefcase, FiUserCheck, FiAward, FiShield, FiX, FiMenu, FiPenTool, FiBox } from "react-icons/fi";
+import {FaChartPie} from "react-icons/fa"
 import { signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -54,9 +55,19 @@ const navItems = [
     icon: <FiAward className="w-5 h-5" />,
   },
   {
-    title: "Отчетность",
-    href: "/reports",
-    icon: <FiShield className="w-5 h-5" />,
+    title: "Склад",
+    href: "/warehouses",
+    icon: <FiBox className="w-5 h-5" />,
+  },
+  {
+    title: "На подпись",
+    href: "/to-sign",
+    icon: <FiPenTool className="w-5 h-5" />,
+  },
+  {
+  title: "Аналитика",
+  href: "/warehouses/analytics",
+  icon: <FaChartPie className="w-5 h-5" />,
   }
 ];
 

@@ -1,0 +1,95 @@
+<div class="body-scoped">
+    <style>
+        .body-scoped {
+            margin: 0;
+            box-sizing: border-box;
+            padding: 0;
+            font-family: sans-serif;
+            line-height: 1.6;
+            width:100%;
+        }
+
+        .table-scoped {
+            text-align: center;
+            border-collapse: collapse;
+        }
+        .td-scoped, .th-scoped {
+            border: 1px solid black;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .header-section {
+                flex-direction: column;
+            }
+            .header-section > div {
+                width: 100%;
+            }
+            .table-container {
+                width: 100%;
+            }
+            .table-container {
+                flex-direction: column;
+            }
+            .signature-section {
+                flex-direction: column;
+            }
+            .signature-section > div {
+                width: 100%;
+            }
+        }
+    </style>
+    <!-- Штрих-код -->
+     <div style="display:flex; justify-content: space-between; width:100%;">
+    <div>
+        <img src="{{ barcode_image }}" alt="Штрих-код" style="width: 100px; height: auto;" />
+    </div>
+
+    <!-- Заголовок -->
+    <div class="header-section" style="display: flex; width:100%; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <div style="text-align: end;">
+            <p>Унифицированная форма КО-1</p>
+            <p>Утверждена постановлением Госкомстата России от 18.08.98 № 88</p>
+        </div>
+    </div>
+    </div>
+
+    <!-- Организация и структурное подразделение -->
+    <div class="organization-section" style="margin-bottom: 2rem;">
+        <div style="border-bottom: 1px solid black; text-align: center; margin-bottom: 0.5rem;">{{ warehouse.organization.name }}</div>
+        <div style="text-align: center; font-size: 0.8rem;">Организация</div>
+        <div style="border-bottom: 1px solid black; text-align: center; margin-top: 1rem; margin-bottom: 0.5rem;">{{ to_zone.department.name }}</div>
+        <div style="text-align: center; font-size: 0.8rem;">Структурное подразделение</div>
+    </div>
+
+    <!-- Таблица данных -->
+    <div class="table-container" style="display: flex; justify-content: space-between; align-items: center;">
+        <h1 style="text-align: center; width: 50%;">Расходный кассовый ордер</h1>
+        <table style="width: 50%;">
+            <thead>
+                <tr>
+                    <th class="th-scoped">Номер документа</th>
+                    <th class="th-scoped">Дата составления</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="td-scoped">{{ doc.id }}</td>
+                    <td class="td-scoped">{{ doc.generated_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Сумма -->
+    <div class="amount-section" style="margin-top: 2rem; text-align: center; display: flex; align-items: center;">
+        <p style="width: 10rem;">Сумма:</p>
+        <div style="flex-grow: 0; border-bottom: 1px solid black; width: 20rem; margin: 0; padding: 0;">{{ item.cost }}</div>
+    </div>
+
+    <!-- Подпись -->
+    <div class="signature-section" style="margin-top: 2rem; display: flex; justify-content: space-between; align-items: center;">
+        <p style="width: 10rem;"><strong>Получил кассир</strong></p>
+        <div style="border-bottom: 1px solid black; width: 20rem; margin: 0; padding: 0;">{{ user.username }}</div>
+    </div>
+</div>

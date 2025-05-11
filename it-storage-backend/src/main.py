@@ -5,7 +5,6 @@ from logging.config import fileConfig
 from fastapi.responses import JSONResponse
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
-from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 import logging
@@ -16,6 +15,7 @@ from src.organizations.schemas import OrganizationBase
 from src.departments.service import DepartmentService
 from src.departments.schemas import DepartmentCreate
 from src.objects.service import ObjectCategoryService
+from src.warehouses.service import WarehouseService
 from src.objects.schemas import ObjectCategoryCreate
 from src.database import AsyncSessionLocal, engine
 from src.repositories import pwd_context
@@ -24,14 +24,13 @@ from src.objects.router import app as obj_router
 from src.organizations.router import app as org_router
 from src.roles.router import app as roles_router
 from src.users.router import app as users_router
-from src.reports.router import app as reports_router
-from src.users.schemas import UserCreate
+from src.warehouses.router import warehouse_router
+from src.users.schemas import PostCreate, UserCreate
 from src.users.models import AuthLog, User, UserAudit
-from src.roles.models import Page, Right, Role
 from dotenv import load_dotenv
 from jose import JWTError, jwt
 import os
-from src.users.service import UserService
+from src.users.service import PostsService, UserService
 from src.database import Base
 
 load_dotenv()
@@ -72,6 +71,7 @@ async def lifespan(app: FastAPI):
                     "is_active": True,
                 }
                 await UserService.create_user(data=UserCreate(**admin_data))
+                await UserService.create_user(data=UserCreate(username="taivallinen",email="starchenckoal@yandex.ru",first_name="Alex",middle_name="Igorevich",last_name="starchencko",phone="+89636303906",password="9001234ABC!"))
                 await OrganizationService.create_organization(data=OrganizationBase(name="ЦИИР",email="cair@cair-edu.ru"))
                 await OrganizationService.create_organization(data=OrganizationBase(name="СТАНКИН",email="stankin@mail.ru"))
                 await DepartmentService.create_department(data=DepartmentCreate(organization_id=1,name="ЦИИР первый отдел",abbreviation="CAIR-1"))
@@ -86,6 +86,12 @@ async def lifespan(app: FastAPI):
                 await ObjectCategoryService.create_category(data=ObjectCategoryCreate(name="Расходные материалы"))
                 await ObjectCategoryService.create_category(data=ObjectCategoryCreate(name="Телефоны"))
                 await ObjectCategoryService.create_category(data=ObjectCategoryCreate(name="Стойки"))
+                await WarehouseService.create_doc_template(data={"name":"receipt","type":"RECEIPT"})
+                await WarehouseService.create_doc_template(data={"name":"move","type":"MOVE"})
+                await WarehouseService.create_doc_template(data={"name":"issue","type":"ISSUE"})
+                await WarehouseService.create_doc_template(data={"name":"write_off","type":"WRITE_OFF"})
+                await PostsService.create_post(PostCreate(name="Менеджер ЦИИР", description="sldfkj",organization_id=1))
+                await PostsService.assign_user_to_post(1,2)
 
         yield
 
@@ -103,7 +109,7 @@ app.include_router(obj_router)
 app.include_router(org_router)
 app.include_router(roles_router)
 app.include_router(users_router)
-app.include_router(reports_router)
+app.include_router(warehouse_router)
 
 # Логгер
 
@@ -144,6 +150,9 @@ async def user_audit(request: Request, call_next):
     try:
         # Skip authentication for public endpoints
         if request.url.path in PUBLIC_ENDPOINTS:
+            return await call_next(request)
+        
+        if request.url.path.startswith("/documents/pdf"):
             return await call_next(request)
 
         # Get token from header
@@ -274,102 +283,6 @@ async def audit_user_actions(request: Request, call_next):
             raise
 
 
-
-async def get_page_by_path(db: AsyncSession, path: str) -> Optional[Page]:
-    result = await db.execute(
-        select(Page).where(Page.path == path).options(selectinload(Page.required_rights)))
-    return result.unique().scalar_one_or_none()
-
-async def has_required_rights(user: User, page: Page) -> bool:
-    user_rights = set()
-    for role in user.roles:
-        for right in role.rights:
-            user_rights.add(right.id)
-    required_rights = {right.id for right in page.required_rights}
-    return bool(user_rights.intersection(required_rights))
-
-
-async def page_permission_middleware(request: Request, call_next):
-    # Skip permission check for public endpoints
-    if request.url.path in PUBLIC_ENDPOINTS:
-        return await call_next(request)
-
-    # Verify user is authenticated
-    if not hasattr(request.state, 'username'):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated",
-        )
-
-    async with AsyncSessionLocal() as db:
-        try:
-            # Get current user with all necessary relationships loaded
-            user = await db.execute(
-                select(User)
-                .where(User.username == request.state.username)
-                .options(
-                    selectinload(User.roles)
-                    .selectinload(Role.rights)
-                    .selectinload(Right.children)  # Eager load children
-                )
-            )
-            user = user.unique().scalar_one_or_none()
-            if not user:
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="User not found",
-                )
-
-            # Skip permission check for system users
-            if user.is_system:
-                return await call_next(request)
-
-            # Check page permissions with eager loading
-            page = await db.execute(
-                select(Page)
-                .where(Page.path == request.url.path)
-                .options(
-                    selectinload(Page.required_rights)
-                    .selectinload(Right.children)  # Eager load children for page rights
-                )
-            )
-            page = page.unique().scalar_one_or_none()
-
-            if not page or not page.required_rights:
-                return await call_next(request)
-
-            # Collect all user rights including inherited ones
-            user_rights = set()
-            for role in user.roles:
-                for right in role.rights:
-                    user_rights.add(right.id)
-                
-
-            # Get required rights for the page
-            required_rights = {right.id for right in page.required_rights}
-            
-            # Check if user has any of the required rights
-            if not user_rights.issuperset(required_rights):
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="Not authorized to access this page",
-                )
-
-            return await call_next(request)
-
-        except HTTPException:
-            raise
-        except Exception as e:
-            logger.error(f"Permission middleware error: {str(e)}")
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Internal server error",
-            )
-
-
-        
-
-# app.middleware("http")(page_permission_middleware)
 app.middleware("http")(user_audit)
 
 

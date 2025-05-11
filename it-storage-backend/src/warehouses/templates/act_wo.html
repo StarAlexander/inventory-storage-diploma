@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Акт списания №{{ document.id }}</title>
+</head>
+<body style="font-family: sans-serif; line-height: 1.6;">
+    <h1 style="text-align: center;">Акт списания</h1>
+
+    <p><strong>Дата:</strong> {{ document.generated_at.strftime('%d.%m.%Y %H:%M') }}</p>
+    <p><strong>Номер акта:</strong> СП/{{ document.id }}</p>
+
+    <h3>Оборудование:</h3>
+    <ul>
+        <li><strong>ID:</strong> {{ equipment.id }}</li>
+        <li><strong>Название:</strong> {{ equipment.name }}</li>
+        <li><strong>Серийный номер:</strong> {{ equipment.serial_number }}</li>
+        <li><strong>Инвентарный номер:</strong> {{ equipment.inventory_number }}</li>
+        <li><strong>Стоимость:</strong> {{ equipment.cost }} руб.</li>
+        <li><strong>Причина списания:</strong> {{ document.note or 'Не указана' }}</li>
+    </ul>
+
+    <h3>Ответственные:</h3>
+    <p><strong>Менеджер склада:</strong> {{ manager.full_name or '-' }}</p>
+    <p><strong>Технический специалист:</strong> {{ technician.full_name or '-' }}</p>
+
+    <br><br>
+    <div style="display: flex; justify-content: space-between; margin-top: 60px;">
+        <p>Подпись менеджера: ________________</p>
+        <p>Подпись техника: ________________</p>
+    </div>
+</body>
+</html>

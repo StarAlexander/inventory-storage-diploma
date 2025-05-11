@@ -16,7 +16,10 @@ python-multipart==0.0.20
 aiomysql==0.2.0
 cryptography==44.0.2
 ldap3==2.9.1
-user-agents==2.2.0
+user-agents==2.2
+Jinja2==3.1.6
+weasyprint==65.1
+python-barcode==0.15.1
 # Зависимости для разработки
 pytest-cov==6.0.0
 pytest-asyncio==0.24.0

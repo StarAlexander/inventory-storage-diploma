@@ -13,12 +13,34 @@ export default function PostDetailPage() {
     const [post, setPost] = useState({
       name: "",
       description: "",
+      organization_id: 0
     });
     const [isLoading, setIsLoading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [orgs,setOrgs] = useState<any[]>([])
     const [error, setError] = useState<string | null>(null);
   
     useEffect(() => {
+
+
+      const fetchOrgs = async () => {
+      setIsLoading(true)
+      try {
+        
+        const response = await fetchWithAuth(`http://backend:8000/organizations`)
+        if (!response.ok) throw new Error("Ошибка при загрузке организаций")
+          const data = await response.json()
+          setOrgs(data)
+      }
+      catch (err) {
+        setError(err instanceof Error ? err.message : "Не удалось загрузить организации")
+      }
+      finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchOrgs()
       if (!isEditing) return;
   
       const fetchPost = async () => {
@@ -66,7 +88,7 @@ export default function PostDetailPage() {
       }
     };
   
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (e: any) => {
       const { name, value } = e.target;
       setPost(prev => ({
         ...prev,
@@ -104,7 +126,24 @@ export default function PostDetailPage() {
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               />
             </div>
-  
+              <div>
+              <label htmlFor="organization_id" className="block text-sm font-medium text-gray-700">
+                Организация *
+              </label>
+              <select
+                id="organization_id"
+                name="organization_id"
+                value={post.organization_id}
+                onChange={handleChange}
+                required
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              >
+                <option key={0} value={0}>Выберите организацию</option>
+                {orgs.map(o=>(
+                  <option key={o.id} value={o.id}>{o.name}</option>
+                ))}
+              </select>
+            </div>
             <div>
               <label htmlFor="description" className="block text-sm font-medium text-gray-700">
                 Описание

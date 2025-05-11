@@ -7,11 +7,36 @@ from src.database import AsyncSessionLocal
 from src.repositories import PostRepository, UserRepository
 from src.users.schemas import AuditLogCreate, PostCreate, UserCreate, UserUpdate
 from src.users.models import ActionType, User, UserAudit
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives.serialization import Encoding,PublicFormat,PrivateFormat,NoEncryption
 import user_agents
 
 
 class UserService:
 
+
+    @staticmethod
+    def generate_ecdsa_keys():
+        """Генерирует пару ECDSA-ключей (приватный + публичный)"""
+        private_key = ec.generate_private_key(ec.SECP384R1())
+        public_key = private_key.public_key()
+
+        # Сериализация в PEM
+        private_pem = private_key.private_bytes(
+            encoding=Encoding.PEM,
+            format=PrivateFormat.TraditionalOpenSSL,
+            encryption_algorithm=NoEncryption()
+        ).decode("utf-8")
+
+        public_pem = public_key.public_bytes(
+            encoding=Encoding.PEM,
+            format=PublicFormat.SubjectPublicKeyInfo
+        ).decode("utf-8")
+
+        return {
+            "private_key": private_pem,
+            "public_key": public_pem
+        }
 
 
     @staticmethod
@@ -23,8 +48,9 @@ class UserService:
     @staticmethod
     async def create_user(data: UserCreate):
         async with AsyncSessionLocal() as session:
+            keys = UserService.generate_ecdsa_keys()
             repo = UserRepository(session)
-            return await repo.create(data.model_dump())
+            return await repo.create(data.model_dump(),keys)
 
     @staticmethod
     async def get_all_users():
@@ -119,6 +145,13 @@ class PostsService:
         async with AsyncSessionLocal() as session:
             repo = PostRepository(session)
             return await repo.unassign_user_from_post(post_id, user_id)
+        
+    
+    @staticmethod
+    async def get_users_by_organization(org_id:int):
+        async with AsyncSessionLocal() as session:
+            repo = PostRepository(session)
+            return await repo.get_users_by_organization(org_id)
         
 
 
