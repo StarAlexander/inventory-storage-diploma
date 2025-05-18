@@ -677,9 +677,12 @@ class PostRepository(BaseRepository):
         
         return {"message": f"User {user_id} unassigned from Post {post_id}"}
     
-    async def get_users_by_organization(self,org_id:int):
-
-        p_res = await self.db.execute(select(Post).where(Post.organization_id == org_id))
+    async def get_users_by_organization(self,org_id:int,position_name:str = None):
+        query = select(Post).where(Post.organization_id == org_id)
+        if position_name:
+            query = query.where(Post.name.ilike(f"%{position_name}%"))
+        p_res = await self.db.execute(query)
         posts = p_res.scalars().all()
         u_res = await self.db.execute(load_relationships(User,select(User).where(User.post_id.in_([p.id for p in posts]))))
+
         return u_res.unique().scalars().all()

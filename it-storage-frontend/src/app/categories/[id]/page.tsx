@@ -57,7 +57,7 @@ export default function CategoryDetailPage(){
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6">
-        {isEditing ? 'Edit Category' : 'Create New Category'}
+        {isEditing ? 'Редактировать категорию' : 'Создать новую категорию'}
       </h1>
       
       {error && (

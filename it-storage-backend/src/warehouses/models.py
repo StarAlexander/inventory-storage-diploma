@@ -43,11 +43,12 @@ class WarehouseTransaction(Base):
     timestamp = Column(DateTime, default=func.now())
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     note = Column(Text)
-
+    repairer_id = Column(Integer,ForeignKey('users.id'))
     equipment = relationship("Object", back_populates="transactions")
     from_zone = relationship("WarehouseZone", foreign_keys=[from_zone_id], back_populates="transactions_from")
     to_zone = relationship("WarehouseZone", foreign_keys=[to_zone_id], back_populates="transactions_to")
-    user = relationship("User", back_populates="transactions")
+    user = relationship("User", foreign_keys=[user_id], back_populates="transactions")
+    repairer = relationship("User",foreign_keys=[repairer_id],back_populates="repair_transactions")
 
 class DocumentTemplate(Base):
     __tablename__ = 'warehouse_document_templates'

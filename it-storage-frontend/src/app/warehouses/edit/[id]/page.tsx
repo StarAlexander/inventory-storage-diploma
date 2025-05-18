@@ -192,7 +192,7 @@ export default function WarehouseDetailPage() {
             </div>
             <div>
               <label htmlFor="manager_id" className="block text-sm font-medium text-gray-700">
-                ID менеджера
+                Менеджера
               </label>
               <select
                 id="manager_id"

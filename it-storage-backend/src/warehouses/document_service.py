@@ -1,8 +1,4 @@
-# src/warehouses/document_service.py
-
-import time
 from pathlib import Path
-from fastapi.responses import FileResponse, StreamingResponse
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import os
 from weasyprint import HTML
@@ -31,22 +27,25 @@ class DocumentService:
                 raise ValueError("Документ не найден")
             print(doc)
             template_name = {
-                "RECEIPT": "pko.html",
-                "ISSUE": "rko.html",
+                "RECEIPT": "rko.html",
+                "PKO_RECEIPT":"pko.html",
+                "ISSUE": "iss.html",
                 "MOVE": "act_io.html",
-                "WRITE_OFF": "act_wo.html"
+                "WRITE_OFF": "act_wo.html",
+                
             }.get(doc.template.type, "default.html")
             transaction = await db.get(WarehouseTransaction, doc.transaction_id)
-
+            res = await db.execute(load_relationships(Object, select(Object).where(Object.id==transaction.equipment_id)))
+            item = res.unique().scalar_one_or_none()
             res = await db.execute(load_relationships(Warehouse,select(Warehouse).where(Warehouse.id == doc.warehouse_id)))
             warehouse = res.unique().scalar_one_or_none()
-            res = await db.execute(load_relationships(WarehouseZone,select(WarehouseZone).where(WarehouseZone.id == transaction.from_zone_id)))
+            res = await db.execute(load_relationships(WarehouseZone,select(WarehouseZone).where(WarehouseZone.id == (transaction.from_zone_id if transaction.from_zone_id else item.location_id))))
             from_zone = res.unique().scalar_one_or_none()
             res = await db.execute(load_relationships(WarehouseZone,select(WarehouseZone).where(WarehouseZone.id == transaction.to_zone_id)))
             to_zone = res.unique().scalar_one_or_none()
-            res = await db.execute(load_relationships(Object, select(Object).where(Object.id==transaction.equipment_id)))
-            item = res.unique().scalar_one_or_none()
             user = await db.get(User, transaction.user_id)
+            res = await db.execute(load_relationships(User,select(User).where(User.id == transaction.repairer_id)))
+            repairer = res.unique().scalar_one_or_none()
             barcode_image = generate_barcode(item.inventory_number)
             template = env.get_template(template_name)
             return template.render(
@@ -57,6 +56,7 @@ class DocumentService:
                 from_zone = from_zone,
                 to_zone = to_zone,
                 user=user,
+                repairer = repairer,
                 barcode_image = barcode_image
             )
 

@@ -1,12 +1,10 @@
-# src/warehouses/analytics_service.py
-
-from sqlalchemy.ext.asyncio import AsyncSession
+from datetime import datetime, timedelta
 from sqlalchemy import func
 from sqlalchemy.future import select
+from sqlalchemy.orm import selectinload
 from src.database import AsyncSessionLocal
-from src.warehouses.models import WarehouseZone, WarehouseTransaction
-from typing import List, Dict, Any
-from datetime import datetime, timedelta
+from src.warehouses.models import WarehouseTransaction, WarehouseZone
+from typing import Any, List, Dict
 
 
 class AnalyticsService:
@@ -15,27 +13,26 @@ class AnalyticsService:
         """Возвращает количество оборудования на каждом складе и зоне"""
         async with AsyncSessionLocal() as db:
             result = await db.execute(
-                select(WarehouseZone.warehouse_id, WarehouseZone.id.label("zone_id"))
-                .outerjoin(WarehouseZone.equipments)
-                .group_by(WarehouseZone.warehouse_id, WarehouseZone.id)
+                select(WarehouseZone)
+                .options(selectinload(WarehouseZone.equipments))
             )
-            zones = result.all()
-
-            # Теперь считаем количество объектов в каждой зоне
+            zones = result.unique().scalars().all()
+            print(zones)
             inventory = [
                 {
                     "warehouseId": zone.warehouse_id,
-                    "zoneId": zone.zone_id,
-                    "totalCount": len(zone.equipment) if hasattr(zone, "equipment") else 0
+                    "zoneId": zone.id,
+                    "totalCount": len(zone.equipments) if hasattr(zone, "equipments") else 0
                 }
                 for zone in zones
             ]
+            print(inventory)
             return inventory
 
     @staticmethod
     async def get_transaction_summary(days: int = 7) -> List[Dict[str, Any]]:
         """Возвращает количество транзакций по типам за последние N дней"""
-        start_date = datetime.utcnow() - timedelta(days=days)
+        start_date = datetime.now() - timedelta(days=days)
 
         async with AsyncSessionLocal() as db:
             result = await db.execute(

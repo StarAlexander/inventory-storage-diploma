@@ -148,10 +148,10 @@ class PostsService:
         
     
     @staticmethod
-    async def get_users_by_organization(org_id:int):
+    async def get_users_by_organization(org_id:int,position_name:str = None):
         async with AsyncSessionLocal() as session:
             repo = PostRepository(session)
-            return await repo.get_users_by_organization(org_id)
+            return await repo.get_users_by_organization(org_id,position_name)
         
 
 

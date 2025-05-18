@@ -52,6 +52,7 @@ class TransactionCreate(BaseModel):
     equipment_id: int
     from_zone_id: int | None = None
     to_zone_id: int | None = None
+    repairer_id: int | None = None
     operation: TransactionOperation
     note: str | None = None
 

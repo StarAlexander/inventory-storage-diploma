@@ -8,7 +8,7 @@ from src.database import AsyncSessionLocal
 from src.warehouses.models import Warehouse, WarehouseZone, WarehouseTransaction, DocumentTemplate, WarehouseDocument
 from src.objects.models import Object
 from src.users.models import User
-from src.warehouses.schemas import TransactionCreate
+from src.warehouses.schemas import TransactionCreate, TransactionOperation
 from src.warehouses.document_service import DocumentService
 from fastapi import HTTPException
 from src.utils.load_relationships import load_relationships
@@ -29,6 +29,14 @@ class WarehouseService:
         async with AsyncSessionLocal() as db:
             result = await db.execute(load_relationships(Warehouse,select(Warehouse)))
             return result.unique().scalars().all()
+        
+
+    
+    @staticmethod
+    async def get_by_id(id:int):
+        async with AsyncSessionLocal() as db:
+            result = await db.execute(load_relationships(Warehouse,select(Warehouse).where(Warehouse.id == id)))
+            return result.unique().scalar_one_or_none()
 
     @staticmethod
     async def create_zone(zone: dict):
@@ -82,15 +90,22 @@ class WarehouseService:
                 equipment.location_id = to_zone.id
                 await db.commit()
 
-            
+            if data.operation == TransactionOperation.ISSUE:
+                equipment.status = "in_repair" 
+                from_zone = await db.get(WarehouseZone,equipment.location_id)
+
+
+            if data.operation == TransactionOperation.WRITE_OFF:
+                equipment.status = "decomissioned"
 
             # Создание транзакции
             db_transaction = WarehouseTransaction(
                 equipment_id=data.equipment_id,
-                from_zone_id=data.from_zone_id,
-                to_zone_id=data.to_zone_id,
+                from_zone_id=from_zone.id if from_zone else None,
+                to_zone_id=data.to_zone_id if to_zone else None,
                 operation=data.operation,
                 user_id=current_user.id,
+                repairer_id = data.repairer_id,
                 note=data.note
             )
             db.add(db_transaction)

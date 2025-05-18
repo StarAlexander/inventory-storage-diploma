@@ -13,8 +13,6 @@ class EntityType(str, Enum):
     DYNAMIC_FIELDS = "dynamic_fields"
     OBJECTS = "objects"
     ROLES = "roles"
-    RIGHTS = "rights"
-    ROLE_PERMISSIONS = "role_rights"
     USERS = "users"
     POSTS = "posts"
     REPORTS = "reports"

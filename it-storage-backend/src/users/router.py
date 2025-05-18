@@ -144,8 +144,10 @@ async def unassign_user_from_post(post_id: int, user_id: int,current_user = Depe
 
 @app.get("/posts/users/organizations/{org_id}")
 @check_permission(EntityType.POSTS,RightType.READ)
-async def get_users_by_organization(org_id: int, current_user = Depends(get_current_user)):
-    return await PostsService.get_users_by_organization(org_id)
+async def get_users_by_organization(org_id: int,
+            position_name: Optional[str] = Query(None, alias="position_name"),
+            current_user = Depends(get_current_user)):
+    return await PostsService.get_users_by_organization(org_id,position_name)
 
 # Аудит
 

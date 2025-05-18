@@ -27,6 +27,7 @@ from src.users.router import app as users_router
 from src.warehouses.router import warehouse_router
 from src.users.schemas import PostCreate, UserCreate
 from src.users.models import AuthLog, User, UserAudit
+from src.roles.service import RoleService,RoleCreate
 from dotenv import load_dotenv
 from jose import JWTError, jwt
 import os
@@ -92,7 +93,10 @@ async def lifespan(app: FastAPI):
                 await WarehouseService.create_doc_template(data={"name":"write_off","type":"WRITE_OFF"})
                 await PostsService.create_post(PostCreate(name="Менеджер ЦИИР", description="sldfkj",organization_id=1))
                 await PostsService.assign_user_to_post(1,2)
-
+                await RoleService.create_role(RoleCreate(name="Менеджер",description="менеджер склада",rights=[{"entity_type":"warehouses","right_type":"read"},{"entity_type":"warehouses","right_type":"create"},{"entity_type":"warehouses","right_type":"update"},{"entity_type":"warehouses","right_type":"delete"},{"entity_type":"warehouse_zones","right_type":"read"},{"entity_type":"warehouse_zones","right_type":"create"},{"entity_type":"warehouse_zones","right_type":"update"},{"entity_type":"warehouse_zones","right_type":"delete"},{"entity_type":"warehouse_transactions","right_type":"read"},{"entity_type":"warehouse_transactions","right_type":"create"},{"entity_type":"warehouse_transactions","right_type":"update"},{"entity_type":"warehouse_transactions","right_type":"delete"},{"entity_type":"warehouse_documents","right_type":"read"},{"entity_type":"warehouse_documents","right_type":"create"},{"entity_type":"warehouse_documents","right_type":"update"},{"entity_type":"warehouse_documents","right_type":"delete"}]))
+                await RoleService.create_role(RoleCreate(name="Модератор",description="Управление инвентарем, информацией об организациях, подразделениях, ролях и пользователях",
+                                                         rights=[{"entity_type":"organizations","right_type":"read"},{"entity_type":"organizations","right_type":"create"},{"entity_type":"organizations","right_type":"update"},{"entity_type":"organizations","right_type":"delete"},{"entity_type":"departments","right_type":"read"},{"entity_type":"departments","right_type":"create"},{"entity_type":"departments","right_type":"update"},{"entity_type":"departments","right_type":"delete"},{"entity_type":"categories","right_type":"read"},{"entity_type":"categories","right_type":"create"},{"entity_type":"categories","right_type":"update"},{"entity_type":"categories","right_type":"delete"},{"entity_type":"dynamic_fields","right_type":"read"},{"entity_type":"dynamic_fields","right_type":"create"},{"entity_type":"dynamic_fields","right_type":"update"},{"entity_type":"dynamic_fields","right_type":"delete"},{"entity_type":"objects","right_type":"read"},{"entity_type":"objects","right_type":"create"},{"entity_type":"objects","right_type":"update"},{"entity_type":"objects","right_type":"delete"},{"entity_type":"roles","right_type":"read"},{"entity_type":"roles","right_type":"create"},{"entity_type":"roles","right_type":"update"},{"entity_type":"roles","right_type":"delete"},{"entity_type":"users","right_type":"read"},{"entity_type":"users","right_type":"create"},{"entity_type":"users","right_type":"update"},{"entity_type":"users","right_type":"delete"},{"entity_type":"posts","right_type":"read"},{"entity_type":"posts","right_type":"create"},{"entity_type":"posts","right_type":"update"},{"entity_type":"posts","right_type":"delete"}]))
+                
         yield
 
     except Exception as e:

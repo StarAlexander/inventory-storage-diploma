@@ -83,7 +83,7 @@ export function RoleRightTable({ url, entityName }: RoleRightTableProps) {
     return (
       <>
         <tr key={item.id} className="border-t border-gray-200">
-          <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 ${depth > 0 ? `pl-${depth * 4}` : ''}`}>
+          <td className={`px-6 py-4 truncate max-w-xs text-sm font-medium text-gray-900 ${depth > 0 ? `pl-${depth * 4}` : ''}`}>
             <div style={{ paddingLeft: `${depth * 20}px` }}>
               {depth > 0 && (
                 <span className="text-gray-400 mr-2">↳</span>
@@ -93,13 +93,13 @@ export function RoleRightTable({ url, entityName }: RoleRightTableProps) {
               </Link>
             </div>
           </td>
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          <td className="px-6 py-4 truncate max-w-xs text-sm text-gray-500">
             {item.description || '-'}
           </td>
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          <td className="px-6 py-4 truncate max-w-xs text-sm text-gray-500">
             {item.parent_id ? 'Потомок' : 'Корневой'}
           </td>
-          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+          <td className="px-6 py-4 truncate max-w-xs text-sm font-medium">
             <button
               onClick={() => router.push(`/roles/${item.id}`)}
               className="text-indigo-600 hover:text-indigo-900 mr-4"
@@ -132,8 +132,8 @@ export function RoleRightTable({ url, entityName }: RoleRightTableProps) {
           </button>
         </Link>
       </div>
-
-      <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+      <div className="overflow-hidden bg-white shadow sm:rounded-lg">
+      <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -155,6 +155,7 @@ export function RoleRightTable({ url, entityName }: RoleRightTableProps) {
             {items.map((item) => renderItem(item))}
           </tbody>
         </table>
+      </div>
       </div>
 
       <ConfirmModal

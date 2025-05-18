@@ -1,12 +1,11 @@
 import json
 import os
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
-from typing import List, Optional
+from typing import Optional
 from datetime import datetime
 
 from fastapi.params import Body, Query
 from fastapi.responses import FileResponse
-from sqlalchemy import select
 
 from src.database import AsyncSessionLocal
 from src.warehouses.analytics_service import AnalyticsService
@@ -16,15 +15,11 @@ from src.repositories import check_permission
 from src.warehouses.service import WarehouseService
 from src.warehouses.schemas import (
     WarehouseCreate,
-    WarehouseDocumentRead,
-    WarehouseRead,
     ZoneCreate,
-    ZoneRead,
-    TransactionCreate,
-    TransactionRead
+    TransactionCreate
 )
 from src.warehouses.document_service import DocumentService
-from src.warehouses.models import Warehouse, WarehouseDocument
+from src.warehouses.models import WarehouseDocument
 
 warehouse_router = APIRouter(tags=["Warehouses"])
 
@@ -44,6 +39,11 @@ async def create_warehouse_route(
 async def list_warehouses_route(current_user=Depends(get_current_user)):
     return await WarehouseService.list_warehouses()
 
+
+@warehouse_router.get("/warehouses/by-id/{id}")
+@check_permission(EntityType.WAREHOUSES,RightType.READ)
+async def get_warehouse_by_id(id:int,current_user = Depends(get_current_user)):
+    return await WarehouseService.get_by_id(id)
 
 # === Зоны ===
 

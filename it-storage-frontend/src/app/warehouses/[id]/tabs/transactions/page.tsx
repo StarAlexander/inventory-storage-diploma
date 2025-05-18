@@ -6,9 +6,10 @@ import { useEffect, useState } from "react";
 
 const operationOptions = {
   "RECEIPT":"Прием оборудования",
+  "PKO_RECEIPT":"Приходной кассовый ордер",
   "ISSUE": "Обнаружение дефекта",
   "MOVE": "Перемещение внутри организации",
-  "WRITE_OFF": "Списание оборудования"
+  "WRITE_OFF": "Списание оборудования",
 }
 
 export default function NewTransactionPage() {
@@ -18,6 +19,8 @@ export default function NewTransactionPage() {
   const [equipment, setEquipment] = useState("");
   const [fromZone, setFromZone] = useState("");
   const [toZone, setToZone] = useState("");
+  const [repairerId,setRepairerId] = useState(0);
+  const [repairers,setRepairers] = useState<any[]>([])
   const [comment, setComment] = useState("");
   const [zoneOptions,setZoneOptions] = useState<any[]>([])
 
@@ -28,6 +31,16 @@ export default function NewTransactionPage() {
     .then(setZoneOptions)
     .catch(err=>console.log(err))
   },[])
+
+  useEffect(()=> {
+    if (operation == "ISSUE")
+    fetchWithAuth(`http://backend:8000/warehouses/by-id/${id}`)
+    .then(res=>res.json())
+    .then(warehouse=>fetchWithAuth(`http://backend:8000/posts/users/organizations/${warehouse.organization_id}?position_name=ремонтник`))
+    .then(res=>res.json())
+    .then(setRepairers)
+    .catch(console.log)
+  },[operation])
   const handleSubmit = async (e:any) => {
     e.preventDefault();
     await fetchWithAuth("http://backend:8000/warehouses/transactions", {
@@ -37,6 +50,7 @@ export default function NewTransactionPage() {
         equipment_id: parseInt(equipment),
         from_zone_id: fromZone ? parseInt(fromZone) : null,
         to_zone_id: toZone ? parseInt(toZone) : null,
+        repairer_id: repairerId ? repairerId : null,
         operation,
         note: comment,
       }),
@@ -105,6 +119,25 @@ export default function NewTransactionPage() {
               ))}
             </select>
           </div>
+
+              {operation == "ISSUE" && <div>
+            <label className="block text-sm font-medium">Исполнитель ремонта</label>
+            <select
+              value={repairerId}
+              onChange={(e) => setRepairerId(Number(e.target.value))}
+              className="w-full mt-1 border rounded px-3 py-2"
+            >
+              <option value={0}>—</option>
+              {repairers.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.last_name + " " + r.first_name + " " + r.middle_name}
+                </option>
+              ))}
+            </select>
+          </div> }
+              
+
+
         </div>
 
         <div>

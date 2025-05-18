@@ -16,10 +16,13 @@ enum EntityType {
   DYNAMIC_FIELDS = "dynamic_fields",
   OBJECTS = "objects",
   ROLES = "roles",
-  PERMISSIONS = "permissions",
   USERS = "users",
-  POSITIONS = "positions",
-  REPORTS = "reports"
+  POSTS = "posts",
+  REPORTS = "reports",
+  WAREHOUSES = "warehouses",
+  WAREHOUSE_ZONES = "warehouse_zones",
+  WAREHOUSE_TRANSACTIONS = "warehouse_transactions",
+  WAREHOUSE_DOCUMENTS = "warehouse_documents"
 }
 
 enum PermissionType {

@@ -83,7 +83,7 @@ class Object(Base):
     warranty_expiry_date = Column(TIMESTAMP, nullable=True)
     created_at = Column(TIMESTAMP, default=func.now())
     updated_at = Column(TIMESTAMP, default=func.now(), onupdate=func.now())
-    status = Column(String(20), nullable="False",default="Активно")
+    status = Column(Enum("active","in_repair","decomissioned"), nullable="False",default="active")
     department = relationship("Department",back_populates="objects")
     category = relationship("ObjectCategory", back_populates="objects")
     dynamic_values = relationship(

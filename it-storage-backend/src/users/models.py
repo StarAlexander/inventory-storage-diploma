@@ -44,7 +44,17 @@ class User(Base):
 
     # Связь для складов
     managed_warehouses = relationship("Warehouse", back_populates="manager")
-    transactions = relationship("WarehouseTransaction", back_populates="user")
+    transactions = relationship(
+        "WarehouseTransaction",
+        foreign_keys="[WarehouseTransaction.user_id]",
+        back_populates="user"
+    )
+
+    repair_transactions = relationship(
+        "WarehouseTransaction",
+        foreign_keys="[WarehouseTransaction.repairer_id]",
+        back_populates="repairer"
+    )
 
 
 class ActionType(str, Enum):
