@@ -40,7 +40,7 @@ export default function ObjectsPage() {
           fetchWithAuth("http://backend:8000/objects"),
           fetchWithAuth("http://backend:8000/object-categories")
         ]);
-        
+        if (objectsRes.status === 403 || categoriesRes.status === 403) throw new Error('Нет доступа')
         if (!objectsRes.ok) throw new Error("Failed to fetch equipment");
         if (!categoriesRes.ok) throw new Error("Failed to fetch categories");
         
@@ -67,6 +67,7 @@ export default function ObjectsPage() {
       const response = await fetchWithAuth(`http://backend:8000/objects/${deleteId}`, {
         method: "DELETE",
       });
+      if (response.status === 403) throw new Error("Нет доступа к удалению объектов")
       if (!response.ok) throw new Error("Failed to delete equipment");
       setObjects(objects.filter(obj => obj.id !== deleteId));
       setDeleteId(null);
@@ -223,6 +224,7 @@ export default function ObjectsPage() {
 
       {/* Equipment Table */}
       <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -246,7 +248,7 @@ export default function ObjectsPage() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 Статус
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 Действия
               </th>
             </tr>
@@ -254,17 +256,17 @@ export default function ObjectsPage() {
           <tbody className="bg-white divide-y divide-gray-200">
             {filteredObjects.map((obj) => (
               <tr key={obj.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                <td className="px-4 py-4 whitespace-nowrap text-sm font-medium space-x-4">
                   {obj.name}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-4 py-4 whitespace-nowrap text-sm font-medium space-x-4">
                   {categories.find(c => c.id === obj.category_id)?.name || '-'}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-4 py-4 whitespace-nowrap text-sm font-medium space-x-4">
                   {obj.inventory_number}
                 </td>
                 {barcodeSettings.showBarcodes && (
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-4 py-4 whitespace-nowrap text-sm font-medium space-x-4">
                     <BarcodeGenerator 
                       value={obj.inventory_number} 
                       format={barcodeSettings.format}
@@ -273,10 +275,10 @@ export default function ObjectsPage() {
                     />
                   </td>
                 )}
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-4 py-4 whitespace-nowrap text-sm font-medium space-x-4">
                   {obj.serial_number}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-4 py-4 whitespace-nowrap text-sm font-medium space-x-4">
                   <span className={`px-2 py-1 rounded-full text-xs ${
                     obj.status === 'active' ? 'bg-green-100 text-green-800' :
                     obj.status === 'in_repair' ? 'bg-yellow-100 text-yellow-800' :
@@ -286,7 +288,7 @@ export default function ObjectsPage() {
                      obj.status === 'in_repair' ? 'В ремонте' : 'Списано'}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <td className="px-4 py-4 whitespace-nowrap text-sm font-medium space-x-4">
                   <button
                     onClick={() => router.push(`/objects/${obj.id}`)}
                     className="text-indigo-600 hover:text-indigo-900 mr-4"
@@ -304,6 +306,7 @@ export default function ObjectsPage() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       <ConfirmModal

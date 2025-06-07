@@ -7,12 +7,14 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export const getObjects = async (): Promise<InventoryObject[]> => {
   const response = await fetchWithAuth(`${API_URL}/objects/`);
+  if (response.status === 403) throw new Error("Нет доступа к объектам")
   if (!response.ok) throw new Error('Failed to fetch objects');
   return response.json();
 };
 
 export const getObject = async (id: number): Promise<InventoryObject> => {
   const response = await fetchWithAuth(`${API_URL}/objects/${id}`);
+  if (response.status === 403) throw new Error("Нет доступа к объектам")
   if (!response.ok) throw new Error('Failed to fetch object');
   return response.json();
 };
@@ -23,6 +25,7 @@ export const createObject = async (data: ObjectCreateData): Promise<InventoryObj
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
 })
+if (response.status === 403) throw new Error("Нет доступа к созданию объектов")
   if (!response.ok) throw new Error('Failed to create object');
   return response.json();
 };
@@ -33,6 +36,7 @@ export const updateObject = async (id: number, data: Partial<ObjectCreateData>):
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
+  if (response.status === 403) throw new Error("Нет доступа к обновлению объектов")
   if (!response.ok) throw new Error('Failed to update object');
   return response.json();
 };
@@ -41,5 +45,6 @@ export const deleteObject = async (id: number): Promise<void> => {
   const response = await fetchWithAuth(`${API_URL}/objects/${id}`, {
     method: 'DELETE',
   });
+  if (response.status === 403) throw new Error("Нет доступа к удалению объектов")
   if (!response.ok) throw new Error('Failed to delete object');
 };

@@ -53,6 +53,7 @@ class TransactionCreate(BaseModel):
     from_zone_id: int | None = None
     to_zone_id: int | None = None
     repairer_id: int | None = None
+    signer_id: int
     operation: TransactionOperation
     note: str | None = None
 

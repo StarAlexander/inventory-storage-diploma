@@ -23,7 +23,7 @@ export default function OrganizationsPage() {
       setIsLoading(true);
       try {
         const response = await fetchWithAuth("http://backend:8000/organizations");
-        
+        if (response.status === 403) throw new Error("Нет доступа к организациям")
         if (!response.ok) throw new Error("Failed to fetch organizations");
         
         const data = await response.json();
@@ -44,6 +44,7 @@ export default function OrganizationsPage() {
       const response = await fetchWithAuth(`http://backend:8000/organizations/${deleteId}`, {
         method: "DELETE",
       });
+      if (response.status === 403) throw new Error("Нет доступа к удалению организаций")
       if (!response.ok) throw new Error("Failed to delete organization");
       setOrganizations(organizations.filter(org => org.id !== deleteId));
       setDeleteId(null);
@@ -98,6 +99,7 @@ export default function OrganizationsPage() {
 
       {/* Organizations Table */}
       <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -151,6 +153,7 @@ export default function OrganizationsPage() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       <ConfirmModal

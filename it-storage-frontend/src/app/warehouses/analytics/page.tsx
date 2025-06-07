@@ -27,6 +27,7 @@ export default function AnalyticsPage() {
   const [lowStockZones, setLowStockZones] = useState<any[]>([]);
   const [threshold, setThreshold] = useState<number>(5);
   const [loading, setLoading] = useState(true);
+  const [error,setError] = useState<string | null>(null)
 
   // Загрузка данных
   useEffect(() => {
@@ -34,10 +35,26 @@ export default function AnalyticsPage() {
       setLoading(true);
       try {
         const [invRes, transRes, lowRes,dayRes] = await Promise.all([
-          fetchWithAuth("http://backend:8000/warehouses/analytics/inventory-levels").then((r) => r.json()),
-          fetchWithAuth("http://backend:8000/warehouses/analytics/transactions-summary?days=7").then((r) => r.json()),
-          fetchWithAuth(`http://backend:8000/warehouses/analytics/low-stock?threshold=${threshold}`).then((r) => r.json()),
-          fetchWithAuth("http://backend:8000/warehouses/analytics/transactions-by-day?days=7").then((r) => r.json())
+          fetchWithAuth("http://backend:8000/warehouses/analytics/inventory-levels").then((r) => {
+            if (r.status === 403) throw new Error("Нет доступа")
+            return r.json()
+          })
+          .catch(err => setError(err instanceof Error ? err.message : "Не удалось загрузить данные")),
+          fetchWithAuth("http://backend:8000/warehouses/analytics/transactions-summary?days=7").then((r) => {
+            if (r.status === 403) throw new Error("Нет доступа")
+            return r.json()
+          })
+          .catch(err => setError(err instanceof Error ? err.message : "Не удалось загрузить данные")),
+          fetchWithAuth(`http://backend:8000/warehouses/analytics/low-stock?threshold=${threshold}`).then((r) => {
+            if (r.status === 403) throw new Error("Нет доступа")
+            return r.json()
+          })
+          .catch(err => setError(err instanceof Error ? err.message : "Не удалось загрузить данные")),
+          fetchWithAuth("http://backend:8000/warehouses/analytics/transactions-by-day?days=7").then((r) => {
+            if (r.status === 403) throw new Error("Нет доступа")
+            return r.json()
+          })
+          .catch(err => setError(err instanceof Error ? err.message : "Не удалось загрузить данные"))
         ]);
 
         setInventoryLevels(invRes);
@@ -53,6 +70,9 @@ export default function AnalyticsPage() {
 
     fetchData();
   }, [threshold]);
+
+
+  if (error) return <div className="text-red-500 p-4">{error}</div>;
 
   // График: операции по типу
   const pieData = {
@@ -123,7 +143,6 @@ export default function AnalyticsPage() {
   };
 
   if (loading) return <p>Загрузка...</p>;
-
   return (
     <div className="max-w-6xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">Аналитика</h1>

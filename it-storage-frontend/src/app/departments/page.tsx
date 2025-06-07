@@ -28,7 +28,7 @@ export default function DepartmentsPage() {
           fetchWithAuth("http://backend:8000/departments"),
           fetchWithAuth("http://backend:8000/organizations")
         ]);
-        
+        if (departmentsRes.status === 403 || organizationsRes.status === 403) throw new Error("Нет доступа")
         if (!departmentsRes.ok) throw new Error(await departmentsRes.text());
         if (!organizationsRes.ok) throw new Error(await organizationsRes.text());
         
@@ -55,6 +55,7 @@ export default function DepartmentsPage() {
       const response = await fetchWithAuth(`http://backend:8000/departments/${deleteId}`, {
         method: "DELETE",
       });
+      if (response.status === 403) throw new Error("Нет доступа к удалению подразделений")
       if (!response.ok) throw new Error("Failed to delete department");
       setDepartments(departments.filter(dept => dept.id !== deleteId));
       setDeleteId(null);
@@ -125,6 +126,7 @@ export default function DepartmentsPage() {
 
       {/* Departments Table */}
       <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -180,6 +182,7 @@ export default function DepartmentsPage() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       <ConfirmModal

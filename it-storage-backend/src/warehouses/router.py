@@ -45,12 +45,39 @@ async def list_warehouses_route(current_user=Depends(get_current_user)):
 async def get_warehouse_by_id(id:int,current_user = Depends(get_current_user)):
     return await WarehouseService.get_by_id(id)
 
+
+
+@warehouse_router.put("/warehouses/by-id/{id}")
+@check_permission(EntityType.WAREHOUSES,RightType.UPDATE)
+async def update_warehouse(id:int,warehouse_data:WarehouseCreate,current_user = Depends(get_current_user)):
+    return await WarehouseService.update_warehouse(id,warehouse_data.model_dump())
+
+@warehouse_router.delete("/warehouses/by-id/{id}")
+@check_permission(EntityType.WAREHOUSES,RightType.DELETE)
+async def delete_warehouse(id:int,current_user = Depends(get_current_user)):
+    return await WarehouseService.delete_warehouse(id)
+
 # === Зоны ===
 
 @warehouse_router.get("/warehouses/{warehouse_id}/zones")
 @check_permission(EntityType.WAREHOUSE_ZONES, RightType.READ)
 async def list_zones_route(warehouse_id: int, current_user=Depends(get_current_user)):
     return await WarehouseService.list_zones(warehouse_id)
+
+@warehouse_router.get("/warehouses/zones/{zone_id}")
+@check_permission(EntityType.WAREHOUSE_ZONES,RightType.READ)
+async def get_zone_by_id(zone_id: int, current_user = Depends(get_current_user)):
+    return await WarehouseService.get_zone_by_id(zone_id)
+
+@warehouse_router.put("/warehouses/zones/{zone_id}")
+@check_permission(EntityType.WAREHOUSE_ZONES,RightType.UPDATE)
+async def update_zone(zone_id: int, zone_data: ZoneCreate, current_user = Depends(get_current_user)):
+    return await WarehouseService.update_zone(zone_id,zone_data.model_dump())
+
+@warehouse_router.delete("/warehouses/zones/{zone_id}")
+@check_permission(EntityType.WAREHOUSE_ZONES,RightType.DELETE)
+async def delete_zone(zone_id: int, current_user = Depends(get_current_user)):
+    return await WarehouseService.delete_zone(zone_id)
 
 
 @warehouse_router.post("/warehouses/{warehouse_id}/zones")

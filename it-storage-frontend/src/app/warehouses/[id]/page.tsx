@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
+import { ConfirmModal } from "@/components/ConfirmModal";
 
 const operationOptions = {
   "RECEIPT":"Прием оборудования",
@@ -15,15 +16,19 @@ const operationOptions = {
 export default function WarehouseDetail() {
   const [warehouse, setWarehouse] = useState<any | null>(null);
   const [activeTab, setActiveTab] = useState("zones");
+  const [error,setError] = useState<string | null>(null)
   const params = useParams()
   useEffect(() => {
-    fetchWithAuth(`http://backend:8000/warehouses/${params.id}`)
-      .then((res) => res.json())
+    fetchWithAuth(`http://backend:8000/warehouses/by-id/${params.id}`)
+      .then((res) => {
+        if (res.status === 403) throw new Error("Нет доступа к складам")
+        return res.json()
+      })
       .then(setWarehouse);
   }, [params.id]);
 
   if (!warehouse) return <p>Загрузка...</p>;
-
+  if (error) return <div className="text-red-500 p-4">{error}</div>;
   return (
     <div className="max-w-6xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-4">{warehouse.name}</h1>
@@ -65,17 +70,42 @@ export default function WarehouseDetail() {
 
 function ZonesTab({ warehouseId } : {warehouseId: number}) {
   const [zones, setZones] = useState<any[]>([]);
+  const [error,setError] = useState<string | null>(null)
+  const [deleteId,setDeleteId] = useState<number | null>(null)
+  const [isDeleting,setIsDeleting] = useState(false)
   useEffect(() => {
     fetchWithAuth(`http://backend:8000/warehouses/${warehouseId}/zones`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 403) throw new Error("Нет доступа к складским зонам")
+          return res.json()
+      })
+      .catch(err => setError(err instanceof Error ? err.message : "Нет доступа к складским зонам"))
       .then(setZones);
   }, [warehouseId]);
 
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    setIsDeleting(true);
+    try {
+      const response = await fetchWithAuth(`http://backend:8000/warehouses/zones/${deleteId}`, {
+        method: "DELETE",
+      });
+      if (response.status === 403) throw new Error("Нет доступа к удалению зон")
+      if (!response.ok) throw new Error("Не получилось удалить зону");
+      setZones([...zones.filter(z => z.id !== deleteId)]);
+      setDeleteId(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Не получилось удалить зону");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+  if (error) return <div className="text-red-500 p-4">{error}</div>;
   return (
     <div>
       <h2 className="text-xl font-semibold mb-4">Зоны</h2>
       <Link
-        href={`/warehouses/${warehouseId}/tabs/zones`}
+        href={`/warehouses/${warehouseId}/tabs/zones/create`}
         className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-4 inline-block"
       >
         + Новая зона
@@ -87,6 +117,7 @@ function ZonesTab({ warehouseId } : {warehouseId: number}) {
             <th className="py-3 px-4 text-left">Название</th>
             <th className="py-3 px-4 text-left">Подразделение</th>
             <th className="py-3 px-4 text-left">Тип</th>
+            <th className="py-3 px-4 text-left">Действия</th>
           </tr>
         </thead>
         <tbody>
@@ -96,22 +127,44 @@ function ZonesTab({ warehouseId } : {warehouseId: number}) {
               <td className="py-3 px-4">{z.name}</td>
               <td className="py-3 px-4">{z.department.name}</td>
               <td className="py-3 px-4">{operationOptions[z.type as "RECEIPT" | "STORAGE" | "SHIPPING" | "REPAIR"]}</td>
+              <td className="py-3 px-4 items-center flex justify-around">
+                <Link href={`/warehouses/${warehouseId}/tabs/zones/${z.id}`} className="text-indigo-500 hover:underline">
+                Изменить
+                </Link>
+                <button onClick={()=>setDeleteId(z.id)} className="text-red-600 hover:text-red-900 hover:underline">
+                Удалить
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
+      <ConfirmModal
+        isOpen={deleteId !== null}
+        onClose={() => setDeleteId(null)}
+        onConfirm={handleDelete}
+        title="Удалить зону"
+        message="Вы уверены, что хотите удалить эту зону? Это действие не может быть отменено."
+        isLoading={isDeleting}
+        danger
+      />
     </div>
   );
 }
 
 function TransactionsTab({ warehouseId }: {warehouseId: number}) {
   const [transactions, setTransactions] = useState<any[]>([]);
+  const [error,setError] = useState<string | null>(null)
   useEffect(() => {
     fetchWithAuth(`http://backend:8000/warehouses/transactions?warehouse_id=${warehouseId}`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 403) throw new Error("Нет доступа к операциям")
+          return res.json()
+      })
+      .catch(err => setError(err instanceof Error ? err.message : "Не удалось загрузить операции"))
       .then(setTransactions);
   }, [warehouseId]);
-
+  if (error) return <div className="text-red-500 p-4">{error}</div>;
   return (
     <div>
       <h2 className="text-xl font-semibold mb-4">Операции</h2>
@@ -157,6 +210,11 @@ function DocumentsTab({ warehouseId }: { warehouseId: number }) {
   }, []);
 
   const handleExport = async (documentId: number) => {
+    const doc = documents.find(d => d.id == documentId)
+    if (!doc.signed) {
+      alert("Неодобренный документ нельзя экспортировать")
+      return
+    }
     const response = await fetchWithAuth(`http://backend:8000/documents/${documentId}/generate`,{
       method:"POST"
     })
@@ -184,7 +242,7 @@ function DocumentsTab({ warehouseId }: { warehouseId: number }) {
             <th className="py-3 px-4 text-left">ID</th>
             <th className="py-3 px-4 text-left">Шаблон</th>
             <th className="py-3 px-4 text-left">Дата генерации</th>
-            <th className="py-3 px-4 text-left">Подписан</th>
+            <th className="py-3 px-4 text-left">Одобрен</th>
             <th className="py-3 px-4 text-left">Просмотр</th>
             <th className="py-3 px-4 text-left">PDF</th>
           </tr>

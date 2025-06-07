@@ -25,6 +25,7 @@ export default function UsersPage() {
       setIsLoading(true);
       try {
         const response = await fetchWithAuth("http://backend:8000/users");
+        if (response.status === 403) throw new Error("Нет доступа к пользователям")
         if (!response.ok) throw new Error("Failed to fetch users");
         const data = await response.json();
         setUsers(data);
@@ -44,6 +45,7 @@ export default function UsersPage() {
       const response = await fetchWithAuth(`http://backend:8000/users/${deleteId}`, {
         method: "DELETE",
       });
+      if (response.status === 403) throw new Error("Нет доступа к удалению пользователей")
       if (!response.ok) throw new Error("Failed to delete user");
       setUsers(users.filter(user => user.id !== deleteId));
       setDeleteId(null);

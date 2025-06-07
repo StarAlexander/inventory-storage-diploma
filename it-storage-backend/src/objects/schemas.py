@@ -57,7 +57,7 @@ class ObjectCreate(BaseModel):
     purchase_date: Optional[str] = None
     warranty_expiry_date: Optional[str] = None
     status: str = None
-    dynamic_values: List[Dict[str,int | str]]  # e.g.: [{"field_id": 1, "value": "some_value"}]
+    dynamic_values: List[Dict[str,int | str]]  = []  # e.g.: [{"field_id": 1, "value": "some_value"}]
 
     @field_validator('purchase_date', 'warranty_expiry_date', mode='before')
     def parse_dates(cls, value):
@@ -82,7 +82,7 @@ class ObjectUpdate(BaseModel):
     cost: Optional[float]= None
     purchase_date: Optional[str]= None
     warranty_expiry_date: Optional[str]= None
-    dynamic_values: Optional[List[Dict[str, str | int]]]= None  # e.g.: [{"field_id": 1, "value": "some_value"}]
+    dynamic_values: Optional[List[Dict[str, str | int]]] = [] # e.g.: [{"field_id": 1, "value": "some_value"}]
     requests: Optional[object] = None
 
     @field_validator('purchase_date', 'warranty_expiry_date', mode='before')

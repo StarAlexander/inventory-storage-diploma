@@ -19,7 +19,7 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}) {
   })
 
   if (response.status === 401) {
-    throw new Error('Unauthorized')
+    throw new Error('Неавторизованный пользователь')
   }
 
   return response

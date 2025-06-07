@@ -2,15 +2,42 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { fetchWithAuth } from "../utils/fetchWithAuth";
+import { ConfirmModal } from "@/components/ConfirmModal";
 
 export default function WarehousesPage() {
   const [warehouses, setWarehouses] = useState<any[]>([]);
-
+  const [error,setError] = useState<string | null>(null)
+  const [deleteId,setDeleteId] = useState<number | null>(null)
+  const [isDeleting,setIsDeleting] = useState(false)
   useEffect(() => {
     fetchWithAuth("http://backend:8000/warehouses")
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 403) throw new Error("Нет доступа к складам")
+        return res.json()
+      })
+      .catch(err => setError(err instanceof Error ? err.message : "Не удалось получить склады"))
       .then(setWarehouses);
   }, []);
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    setIsDeleting(true);
+    try {
+      const response = await fetchWithAuth(`http://backend:8000/warehouses/by-id/${deleteId}`, {
+        method: "DELETE",
+      });
+      if (response.status === 403) throw new Error("Нет доступа к удалению складов")
+      if (!response.ok) throw new Error("Не получилось удалить склад");
+      setWarehouses([...warehouses.filter(wh => wh.id !== deleteId)]);
+      setDeleteId(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Не получилось удалить склад");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  if (error) return <div className="text-red-500 p-4">{error}</div>;
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -47,9 +74,9 @@ export default function WarehousesPage() {
                 <Link href={`/warehouses/edit/${w.id}`} className="text-indigo-500 hover:underline">
                   Изменить склад
                 </Link>
-                <Link href={"#"} className="text-red-600 hover:text-red-900 hover:underline">
+                <button onClick={()=>setDeleteId(w.id)} className="text-red-600 hover:text-red-900 hover:underline">
                   Удалить склад
-                </Link>
+                </button>
               </td>
             </tr>
           ))}
@@ -57,6 +84,15 @@ export default function WarehousesPage() {
       </table>
     </div>
     </div>
+    <ConfirmModal
+        isOpen={deleteId !== null}
+        onClose={() => setDeleteId(null)}
+        onConfirm={handleDelete}
+        title="Удалить склад"
+        message="Вы уверены, что хотите удалить этот склад? Это действие не может быть отменено."
+        isLoading={isDeleting}
+        danger
+      />
     </div>
   );
 }

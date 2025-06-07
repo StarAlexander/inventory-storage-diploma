@@ -38,6 +38,28 @@ class WarehouseService:
             result = await db.execute(load_relationships(Warehouse,select(Warehouse).where(Warehouse.id == id)))
             return result.unique().scalar_one_or_none()
 
+
+    @staticmethod
+    async def update_warehouse(id,warehouse_data:dict):
+        async with AsyncSessionLocal() as db:
+            wh = await db.get(Warehouse,id)
+            for key,value in warehouse_data.items():
+                if not value is None:
+                    setattr(wh,key,value)
+
+            await db.commit()
+            await db.refresh(wh)
+            return await WarehouseService.get_by_id(id)
+
+
+    @staticmethod
+    async def delete_warehouse(id):
+        async with AsyncSessionLocal() as db:
+            wh = await db.get(Warehouse,id)
+            await db.delete(wh)
+            await db.commit()
+            return {"message":"Склад удален успешно"}
+
     @staticmethod
     async def create_zone(zone: dict):
         async with AsyncSessionLocal() as db:
@@ -55,6 +77,36 @@ class WarehouseService:
             )
             return result.unique().scalars().all()
 
+
+    @staticmethod
+    async def get_zone_by_id(zone_id):
+        async with AsyncSessionLocal() as db:
+            result = await db.execute(
+                load_relationships(WarehouseZone,select(WarehouseZone).where(WarehouseZone.id == zone_id))
+            )
+            return result.unique().scalar_one_or_none()
+
+
+    @staticmethod
+    async def update_zone(zone_id:int,zone_data:dict):
+        async with AsyncSessionLocal() as db:
+            zone =  await db.get(WarehouseZone,zone_id)
+            for key,value in zone_data.items():
+                if not value is None:
+                    setattr(zone,key,value)
+            
+            await db.commit()
+            await db.refresh(zone)
+            return await WarehouseService.get_zone_by_id(zone_id)
+        
+
+    @staticmethod
+    async def delete_zone(zone_id):
+        async with AsyncSessionLocal() as db:
+            zone = await db.get(Warehouse,zone_id)
+            await db.delete(zone)
+            await db.commit()
+            return {"message":"Зона удалена успешно"}
 
     @staticmethod
     async def create_doc_template(data:dict):
@@ -122,6 +174,7 @@ class WarehouseService:
                     transaction_id = db_transaction.id,
                     warehouse_id = to_zone.warehouse_id if to_zone else from_zone.warehouse_id,
                     template_id=template.id,
+                    signed_by = data.signer_id,
                     document=b""
                 )
                 db.add(document)
@@ -229,9 +282,9 @@ class WarehouseService:
     @staticmethod
     async def get_documents_to_sign(user):
         async with AsyncSessionLocal() as db:
-            # Предположим, что документы с signed=False требуют подписи
+            print(user.id)
             result = await db.execute(
-                load_relationships(WarehouseDocument,select(WarehouseDocument).where(WarehouseDocument.signed == False))
+                load_relationships(WarehouseDocument,select(WarehouseDocument).where(WarehouseDocument.signed == False).filter(WarehouseDocument.signed_by == user.id))
             )
             return result.scalars().all()
 

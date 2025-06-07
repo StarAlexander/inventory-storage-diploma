@@ -22,7 +22,7 @@ export default function PostUsersPage() {
             fetchWithAuth(`http://backend:8000/posts/${id}`),
             fetchWithAuth("http://backend:8000/users"),
           ]);
-  
+          if (postRes.status === 403 || usersRes.status === 403) throw new Error("Нет доступа")
           if (!postRes.ok) throw new Error("Failed to fetch post");
           if (!usersRes.ok) throw new Error("Failed to fetch users");
   
@@ -49,7 +49,7 @@ export default function PostUsersPage() {
         const response = await fetchWithAuth(`http://backend:8000/posts/${id}/users/${userId}`, {
           method: isAssigned ? "DELETE" : "POST",
         });
-  
+        if (response.status === 403) throw new Error("Нет доступа")
         if (!response.ok) throw new Error("Failed to update user assignment");
   
         setPost((prev: any) => ({

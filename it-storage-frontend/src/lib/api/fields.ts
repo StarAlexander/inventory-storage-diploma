@@ -7,6 +7,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export const getFields = async (): Promise<DynamicField[]> => {
   const response = await fetchWithAuth(`${API_URL}/dynamic-fields/`);
+  if (response.status === 403) throw new Error("Нет доступа к полям")
   if (!response.ok) throw new Error('Failed to fetch fields');
   const fields = await response.json()
   return await Promise.all(fields.map(async (f:any)=> {
@@ -17,6 +18,7 @@ export const getFields = async (): Promise<DynamicField[]> => {
 
 export const getField = async (id: number): Promise<DynamicField> => {
   const response = await fetchWithAuth(`${API_URL}/dynamic-fields/${id}`);
+  if (response.status === 403) throw new Error("Нет доступа к полям")
   if (!response.ok) throw new Error('Failed to fetch field');
   const data = await response.json()
   data["category"] = await getCategory(data.category_id)
@@ -25,6 +27,7 @@ export const getField = async (id: number): Promise<DynamicField> => {
 
 export const getFieldsByCategory = async (categoryId: number): Promise<DynamicField[]> => {
   const response = await fetchWithAuth(`${API_URL}/dynamic-fields/?category_id=${categoryId}`);
+  if (response.status === 403) throw new Error("Нет доступа к полям")
   if (!response.ok) throw new Error('Failed to fetch fields by category');
   return response.json();
 };
@@ -35,6 +38,7 @@ export const createField = async (data: FieldCreateData): Promise<DynamicField> 
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
+  if (response.status === 403) throw new Error("Нет доступа к созданию полей")
   if (!response.ok) throw new Error('Failed to create field');
   return response.json();
 };
@@ -45,6 +49,7 @@ export const updateField = async (id: number, data: FieldCreateData): Promise<Dy
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
+  if (response.status === 403) throw new Error("Нет доступа к обновлению полей")
   if (!response.ok) throw new Error('Some of the field values are in use');
   return response.json();
 };
@@ -53,5 +58,6 @@ export const deleteField = async (id: number): Promise<void> => {
   const response = await fetchWithAuth(`${API_URL}/dynamic-fields/${id}`, {
     method: 'DELETE',
   });
+  if (response.status === 403) throw new Error("Нет доступа к удалению полей")
   if (!response.ok) throw new Error('Failed to delete field');
 };

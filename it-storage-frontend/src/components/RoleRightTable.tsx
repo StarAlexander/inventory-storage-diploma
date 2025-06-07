@@ -25,6 +25,7 @@ export function RoleRightTable({ url, entityName }: RoleRightTableProps) {
       setIsLoading(true);
       try {
         const response = await fetchWithAuth(url);
+        if (response.status === 403) throw new Error("Нет доступа")
         if (!response.ok) throw new Error(`Failed to fetch ${entityName}s`);
         const data = await response.json();
         
@@ -69,6 +70,7 @@ export function RoleRightTable({ url, entityName }: RoleRightTableProps) {
       const response = await fetchWithAuth(`${url}/${deleteId}`, {
         method: "DELETE",
       });
+      if (response.status === 403) throw new Error("Нет доступа к удалению")
       if (!response.ok) throw new Error(`Failed to delete ${entityName}`);
       setDeleteId(null);
       window.location.reload()

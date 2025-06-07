@@ -21,29 +21,55 @@ export default function NewTransactionPage() {
   const [toZone, setToZone] = useState("");
   const [repairerId,setRepairerId] = useState(0);
   const [repairers,setRepairers] = useState<any[]>([])
+  const [signerId,setSignerId] = useState<number>(0)
+  const [signers,setSigners] = useState<any[]>([])
   const [comment, setComment] = useState("");
   const [zoneOptions,setZoneOptions] = useState<any[]>([])
-
+  const [error,setError] = useState<string | null>(null)
 
   useEffect(()=> {
     fetchWithAuth(`http://backend:8000/warehouses/${id}/zones`)
-    .then(res=>res.json())
+    .then(res=>{
+      if (res.status === 403) throw new Error("Нет доступа к зонам")
+      return res.json()
+    })
     .then(setZoneOptions)
-    .catch(err=>console.log(err))
+    .catch(err=>setError(err instanceof Error ? err.message : "Не удалось загрузить зоны"))
   },[])
 
   useEffect(()=> {
     if (operation == "ISSUE")
     fetchWithAuth(`http://backend:8000/warehouses/by-id/${id}`)
-    .then(res=>res.json())
+    .then(res=>{
+      if (res.status === 403) throw new Error("Нет доступа к пользователям")
+      return res.json()
+    })
     .then(warehouse=>fetchWithAuth(`http://backend:8000/posts/users/organizations/${warehouse.organization_id}?position_name=ремонтник`))
     .then(res=>res.json())
     .then(setRepairers)
-    .catch(console.log)
+    .catch(err => setError(err instanceof Error ? err.message : "Не удалось загрузить пользователей"))
   },[operation])
+
+  useEffect(()=> {
+    fetchWithAuth(`http://backend:8000/warehouses/by-id/${id}`)
+    .then(res=>{
+      if (res.status === 403) throw new Error("Нет доступа к пользователям")
+      return res.json()
+    })
+    .then(w => fetchWithAuth(`http://backend:8000/posts/users/organizations/${w.organization_id}`))
+    .then(res => {
+      if (res.status === 403) throw new Error("Нет доступа к пользователям")
+        return  res.json()
+    })
+    .then(ss => setSigners(ss))
+    .catch(err => setError(err instanceof Error ? err.message : "Не получилось загрузить пользователей"))
+  },[])
+
+
   const handleSubmit = async (e:any) => {
     e.preventDefault();
-    await fetchWithAuth("http://backend:8000/warehouses/transactions", {
+    try {
+    const res = await fetchWithAuth("http://backend:8000/warehouses/transactions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -51,13 +77,20 @@ export default function NewTransactionPage() {
         from_zone_id: fromZone ? parseInt(fromZone) : null,
         to_zone_id: toZone ? parseInt(toZone) : null,
         repairer_id: repairerId ? repairerId : null,
+        signer_id: signerId,
         operation,
         note: comment,
       }),
     });
+    if (res.status === 403) throw new Error("Нет доступа к созданию транзакций")
     router.push(`/warehouses/${id}`)
+    }
+    catch (err) {
+      setError(err instanceof Error ? err.message : "Не удалось создать операцию")
+    }
+    
   };
-
+  if (error) return <p className="text-red-500">Ошибка: {error}</p>;
   return (
     <div className="max-w-3xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">Новая операция</h1>
@@ -136,7 +169,7 @@ export default function NewTransactionPage() {
             </select>
           </div> }
               
-
+        
 
         </div>
 
@@ -147,6 +180,23 @@ export default function NewTransactionPage() {
             onChange={(e) => setComment(e.target.value)}
             className="w-full mt-1 border rounded px-3 py-2"
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Подпись от:</label>
+          <select
+            value={signerId}
+            onChange={(e) => setSignerId(Number(e.target.value))}
+            required
+            className="w-full mt-1 border rounded px-3 py-2"
+          >
+            <option value="">Выберите сотрудника</option>
+            {signers.map(s=>(
+              <option key={s.id} value={s.id}>
+                  {s.last_name + " " + s.first_name + " " + s.middle_name}
+                </option>
+            ))}
+          </select>
         </div>
 
         <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">

@@ -26,6 +26,7 @@ export default function DepartmentDetailPage() {
     const fetchOrganizations = async () => {
       try {
         const response = await fetchWithAuth("http://backend:8000/organizations");
+        if (response.status === 403) throw new Error("Нет доступа к организациям")
         if (!response.ok) throw new Error("Failed to fetch organizations");
         const data = await response.json();
         setOrganizations(data);
@@ -43,6 +44,7 @@ export default function DepartmentDetailPage() {
       setIsLoading(true);
       try {
         const response = await fetchWithAuth(`http://backend:8000/departments/${id}`);
+        if (response.status === 403) throw new Error("Нет доступа к подразделениям")
         if (!response.ok) throw new Error("Failed to fetch department");
         const data = await response.json();
         setDepartment(data);
@@ -69,7 +71,7 @@ export default function DepartmentDetailPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(department),
       });
-
+      if (response.status === 403) throw new Error("Нет доступа к изменению подразделений")
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.detail || "Failed to save department");

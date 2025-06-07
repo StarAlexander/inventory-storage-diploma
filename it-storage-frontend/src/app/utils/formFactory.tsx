@@ -72,6 +72,7 @@ export function createRoleRightForm(url: string) {
             fetchWithAuth(url),
             isEditing ? fetchWithAuth(`${url}/${id}`) : Promise.resolve(null)
           ]);
+          if (rolesRes.status === 403) throw new Error("Нет доступа")
 
           if (!rolesRes.ok) throw new Error("Failed to fetch roles");
           setAllRoles(await rolesRes.json());
@@ -116,6 +117,8 @@ export function createRoleRightForm(url: string) {
             rights:permissions
           })
         });
+
+        if (response.status === 403) throw new Error("Нет доступа к изменению ролей")
 
         if (!response.ok) {
           const errorData = await response.json();

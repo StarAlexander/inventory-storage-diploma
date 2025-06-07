@@ -20,6 +20,7 @@ export default function PostsPage() {
         setIsLoading(true);
         try {
           const response = await fetchWithAuth("http://backend:8000/posts");
+          if (response.status === 403) throw new Error("Нет доступа к должностям")
           if (!response.ok) throw new Error("Failed to fetch posts");
           const data = await response.json();
           setPosts(data);
@@ -39,6 +40,7 @@ export default function PostsPage() {
         const response = await fetchWithAuth(`http://backend:8000/posts/${deleteId}`, {
           method: "DELETE",
         });
+        if (response.status === 403) throw new Error("Нет доступа к удалению должностей")
         if (!response.ok) throw new Error("Failed to delete post");
         setPosts(posts.filter(post => post.id !== deleteId));
         setDeleteId(null);
@@ -64,6 +66,7 @@ export default function PostsPage() {
         </div>
   
         <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+          <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
@@ -115,6 +118,7 @@ export default function PostsPage() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
   
         <ConfirmModal

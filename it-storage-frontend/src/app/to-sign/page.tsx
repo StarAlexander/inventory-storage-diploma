@@ -7,12 +7,16 @@ export default function ToSignPage() {
   const [previewId, setPreviewId] = useState<number | null>(null);
   const [previewContent, setPreviewContent] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-
+  const [error,setError] = useState<string | null>(null)
   // Получаем список документов
   useEffect(() => {
     fetchWithAuth("http://backend:8000/warehouses/documents/to-sign")
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 403) throw new Error("Нет доступа к документам")
+        return res.json()
+      })
       .then(setDocuments)
+      .catch(err => setError(err instanceof Error ? err.message : "Не удалось получить документы") )
       .finally(() => setLoading(false));
   }, []);
 
@@ -32,25 +36,30 @@ export default function ToSignPage() {
     });
 
     if (!res.ok) {
-      alert("Не удалось подписать документ");
+      alert("Не удалось одобрить документ");
       return;
     }
 
     const updated = await res.json();
     setDocuments(documents.filter(d => d.id !== docId));
+    if (docId == previewId) {
+      setPreviewContent(null)
+    }
     alert("Документ подписан");
   };
 
   if (loading) return <p>Загрузка...</p>;
 
+  if (error) return <div className="text-red-500 p-4">{error}</div>;
+
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">На подпись</h1>
+      <h1 className="text-2xl font-bold mb-6">На одобрение</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Список документов */}
         <div className="space-y-2">
-          {documents.length === 0 && <p>Нет документов</p>}
+          {documents.length === 0 && <p>У вас нет документов для одобрения</p>}
           {documents.map((doc) => (
             <div key={doc.id} className="border p-4 rounded shadow-sm hover:shadow-md transition-shadow">
               <div className="flex justify-between items-start">
@@ -66,7 +75,7 @@ export default function ToSignPage() {
                     onClick={() => signDocument(doc.id)}
                     className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
                   >
-                    Подписать
+                    Одобрить
                   </button>
                 </div>
               </div>

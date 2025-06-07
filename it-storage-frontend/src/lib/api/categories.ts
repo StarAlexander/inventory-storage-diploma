@@ -5,12 +5,14 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export const getCategories = async (): Promise<ObjectCategory[]> => {
   const response = await fetchWithAuth(`${API_URL}/object-categories/`);
+  if (response.status === 403) throw new Error("Нет доступа к категориям")
   if (!response.ok) throw new Error('Failed to fetch categories');
   return response.json();
 };
 
 export const getCategory = async (id: number): Promise<ObjectCategory> => {
   const response = await fetchWithAuth(`${API_URL}/object-categories/${id}`);
+  if (response.status === 403) throw new Error("Нет доступа к категориям")
   if (!response.ok) throw new Error('Failed to fetch category');
   return response.json();
 };
@@ -21,6 +23,7 @@ export const createCategory = async (data: CategoryCreateData): Promise<ObjectCa
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
+  if (response.status === 403) throw new Error("Нет доступа к созданию категорий")
   if (!response.ok) throw new Error('Failed to create category');
   return response.json();
 };
@@ -31,6 +34,7 @@ export const updateCategory = async (id: number, data: CategoryCreateData): Prom
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
+  if (response.status === 403) throw new Error("Нет доступа к обновлению категорий")
   if (!response.ok) throw new Error('Failed to update category');
   return response.json();
 };
@@ -39,5 +43,6 @@ export const deleteCategory = async (id: number): Promise<void> => {
   const response = await fetchWithAuth(`${API_URL}/object-categories/${id}`, {
     method: 'DELETE',
   });
+  if (response.status === 403) throw new Error("Нет доступа к удалению категорий")
   if (!response.ok) throw new Error('Failed to delete category');
 };

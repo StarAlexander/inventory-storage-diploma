@@ -39,11 +39,13 @@ export default function ObjectDetailPage() {
     const fetchCategories = async () => {
       try {
         const response = await fetchWithAuth("http://backend:8000/object-categories");
+        if (response.status === 403) throw new Error("Нет доступа")
         if (!response.ok) throw new Error("Failed to fetch categories");
         const data = await response.json();
         setCategories(data);
 
         const orgResponse = await fetchWithAuth("http://backend:8000/organizations")
+        if (orgResponse.status === 403) throw new Error("Нет доступа")
         if (!orgResponse.ok) throw new Error("Failed to fetch organizations")
         const orgData = await orgResponse.json()
         setOrganizations(orgData)
@@ -61,6 +63,7 @@ export default function ObjectDetailPage() {
       setIsLoading(true);
       try {
         const response = await fetchWithAuth(`http://backend:8000/objects/${id}`);
+        if (response.status === 403) throw new Error("Нет доступа к объектам")
         if (!response.ok) throw new Error("Failed to fetch equipment");
         const data = await response.json();
         setObject(data);
@@ -79,6 +82,7 @@ export default function ObjectDetailPage() {
     const fetchFields = async () => {
       try {
         const response = await fetchWithAuth(`http://backend:8000/dynamic-fields?category_id=${object.category_id}`);
+        if (response.status === 403) throw new Error("Нет доступа к полям")
         if (!response.ok) throw new Error("Failed to fetch fields");
         const data = await response.json();
         setDynamicFields(data);
@@ -120,7 +124,7 @@ export default function ObjectDetailPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(submitData),
       });
-
+      if (response.status === 403) throw new Error("Нет доступа к изменению объектов")
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.detail || "Failed to save equipment");

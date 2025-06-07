@@ -5,7 +5,8 @@ import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
 
 export default function NewZonePage() {
   const router = useRouter();
-  const { id } = useParams(); // ID склада
+  const { id,zone } = useParams();
+  const isEditing = zone !== "create";
   const [formData, setFormData] = useState({
     warehouse_id:id,
     department_id: 0,
@@ -18,9 +19,26 @@ export default function NewZonePage() {
 
 
   useEffect(()=> {
+    if (!isEditing) return;
+    try {
+      const fetchZone = async () => {
+      const res = await fetchWithAuth(`http://backend:8000/warehouses/zones/${zone}`)
+      if (res.status === 403) throw new Error("Нет доступа к зонам")
+      const z = await res.json()
+      setFormData(z)
+    }
+    fetchZone()
+    }
+    catch (e) {
+      setError(e instanceof Error ? e.message : "Не получилось загрузить зону")
+    }
+  },[zone])
+
+  useEffect(()=> {
     const fetchDeps = async () => {
       try {
       const res = await fetchWithAuth(`http://backend:8000/departments`)
+      if (res.status === 403) throw new Error("Нет доступа к подразделениям")
       if (!res.ok) throw new Error("Failed to fetch departments")
       const data = await res.json()
       setDeps(data)
@@ -34,18 +52,21 @@ export default function NewZonePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null)
     try {
-      const response = await fetchWithAuth(`http://backend:8000/warehouses/${id}/zones`, {
-        method: "POST",
+      const url = isEditing ? `http://backend:8000/warehouses/zones/${zone}` : `http://backend:8000/warehouses/${id}/zones`;
+      const method = isEditing ? "PUT" : "POST"
+      const response = await fetchWithAuth(url, {
+        method: method,
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
-
+      if (response.status === 403) throw new Error("Нет доступа к зонам")
       if (!response.ok) {
         const errData = await response.json();
-        throw new Error(errData.detail || "Ошибка при создании зоны");
+        throw new Error(errData.detail || "Ошибка при выполнении действия");
       }
 
       router.push(`/warehouses/${id}`);
@@ -63,7 +84,7 @@ export default function NewZonePage() {
 
   return (
     <div className="max-w-3xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Создать новую зону</h1>
+      <h1 className="text-2xl font-bold mb-6">{isEditing ? "Изменить" : "Создать"} зону</h1>
       {error && <p className="text-red-500 mb-4">{error}</p>}
 
       <form onSubmit={handleSubmit} className="space-y-4">

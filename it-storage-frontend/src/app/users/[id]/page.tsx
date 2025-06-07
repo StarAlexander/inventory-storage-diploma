@@ -58,6 +58,7 @@ export default function UserDetailPage() {
         setIsLoading(true);
         try {
           const response = await fetchWithAuth(`http://backend:8000/users/${id}`);
+          if (response.status === 403) throw new Error("Нет доступа к пользователям")
           if (!response.ok) throw new Error("Failed to fetch user");
           const data = await response.json();
           setUser(data);
@@ -99,7 +100,7 @@ export default function UserDetailPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
-  
+        if (response.status === 403) throw new Error("Нет доступа к изменению пользователей")
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.detail || "Failed to save user");

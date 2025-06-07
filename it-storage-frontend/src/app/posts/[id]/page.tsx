@@ -28,6 +28,7 @@ export default function PostDetailPage() {
       try {
         
         const response = await fetchWithAuth(`http://backend:8000/organizations`)
+        if (response.status === 403) throw new Error("Нет доступа к организациям")
         if (!response.ok) throw new Error("Ошибка при загрузке организаций")
           const data = await response.json()
           setOrgs(data)
@@ -47,6 +48,7 @@ export default function PostDetailPage() {
         setIsLoading(true);
         try {
           const response = await fetchWithAuth(`http://backend:8000/posts/${id}`);
+          if (response.status === 403) throw new Error("Нет доступа к должностям")
           if (!response.ok) throw new Error("Failed to fetch post");
           const data = await response.json();
           setPost(data);
@@ -74,7 +76,7 @@ export default function PostDetailPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(post),
         });
-  
+        if (response.status === 403) throw new Error("Нет доступа к изменению должностей")
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.detail || "Failed to save post");

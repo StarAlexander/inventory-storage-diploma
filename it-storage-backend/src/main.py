@@ -33,6 +33,7 @@ from jose import JWTError, jwt
 import os
 from src.users.service import PostsService, UserService
 from src.database import Base
+from src.utils.seed_db import seed_db
 
 load_dotenv()
 
@@ -96,6 +97,9 @@ async def lifespan(app: FastAPI):
                 await RoleService.create_role(RoleCreate(name="Менеджер",description="менеджер склада",rights=[{"entity_type":"warehouses","right_type":"read"},{"entity_type":"warehouses","right_type":"create"},{"entity_type":"warehouses","right_type":"update"},{"entity_type":"warehouses","right_type":"delete"},{"entity_type":"warehouse_zones","right_type":"read"},{"entity_type":"warehouse_zones","right_type":"create"},{"entity_type":"warehouse_zones","right_type":"update"},{"entity_type":"warehouse_zones","right_type":"delete"},{"entity_type":"warehouse_transactions","right_type":"read"},{"entity_type":"warehouse_transactions","right_type":"create"},{"entity_type":"warehouse_transactions","right_type":"update"},{"entity_type":"warehouse_transactions","right_type":"delete"},{"entity_type":"warehouse_documents","right_type":"read"},{"entity_type":"warehouse_documents","right_type":"create"},{"entity_type":"warehouse_documents","right_type":"update"},{"entity_type":"warehouse_documents","right_type":"delete"}]))
                 await RoleService.create_role(RoleCreate(name="Модератор",description="Управление инвентарем, информацией об организациях, подразделениях, ролях и пользователях",
                                                          rights=[{"entity_type":"organizations","right_type":"read"},{"entity_type":"organizations","right_type":"create"},{"entity_type":"organizations","right_type":"update"},{"entity_type":"organizations","right_type":"delete"},{"entity_type":"departments","right_type":"read"},{"entity_type":"departments","right_type":"create"},{"entity_type":"departments","right_type":"update"},{"entity_type":"departments","right_type":"delete"},{"entity_type":"categories","right_type":"read"},{"entity_type":"categories","right_type":"create"},{"entity_type":"categories","right_type":"update"},{"entity_type":"categories","right_type":"delete"},{"entity_type":"dynamic_fields","right_type":"read"},{"entity_type":"dynamic_fields","right_type":"create"},{"entity_type":"dynamic_fields","right_type":"update"},{"entity_type":"dynamic_fields","right_type":"delete"},{"entity_type":"objects","right_type":"read"},{"entity_type":"objects","right_type":"create"},{"entity_type":"objects","right_type":"update"},{"entity_type":"objects","right_type":"delete"},{"entity_type":"roles","right_type":"read"},{"entity_type":"roles","right_type":"create"},{"entity_type":"roles","right_type":"update"},{"entity_type":"roles","right_type":"delete"},{"entity_type":"users","right_type":"read"},{"entity_type":"users","right_type":"create"},{"entity_type":"users","right_type":"update"},{"entity_type":"users","right_type":"delete"},{"entity_type":"posts","right_type":"read"},{"entity_type":"posts","right_type":"create"},{"entity_type":"posts","right_type":"update"},{"entity_type":"posts","right_type":"delete"}]))
+                
+
+                await seed_db(await ObjectCategoryService.get_all_categories())
                 
         yield
 

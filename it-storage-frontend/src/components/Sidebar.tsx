@@ -60,7 +60,7 @@ const navItems = [
     icon: <FiBox className="w-5 h-5" />,
   },
   {
-    title: "На подпись",
+    title: "На одобрение",
     href: "/to-sign",
     icon: <FiPenTool className="w-5 h-5" />,
   },

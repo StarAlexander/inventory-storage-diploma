@@ -27,6 +27,7 @@ export default function WarehouseDetailPage() {
       try {
         
         const response = await fetchWithAuth(`http://backend:8000/organizations`)
+        if (response.status === 403) throw new Error("Нет доступа к организациям")
         if (!response.ok) throw new Error("Ошибка при загрузке организаций")
           const data = await response.json()
           setOrgs(data)
@@ -45,7 +46,8 @@ export default function WarehouseDetailPage() {
     const fetchWarehouse = async () => {
       setIsLoading(true);
       try {
-        const response = await fetchWithAuth(`http://backend:8000/warehouses/${id}`);
+        const response = await fetchWithAuth(`http://backend:8000/warehouses/by-id/${id}`);
+        if (response.status === 403) throw new Error("Нет доступа к складам")
         if (!response.ok) throw new Error("Ошибка при загрузке данных");
         const data = await response.json();
         setWarehouse(data);
@@ -66,6 +68,7 @@ export default function WarehouseDetailPage() {
       setIsLoading(true)
       try {
         const res = await fetchWithAuth(`http://backend:8000/posts/users/organizations/${warehouse.organization_id}`)
+        if (res.status === 403) throw new Error("Нет доступа к пользователям")
         if (!res.ok) throw new Error("Failed to fetch users");
         const users = await res.json()
         setUsers(users)
@@ -92,7 +95,7 @@ export default function WarehouseDetailPage() {
     try {
       const method = isEditing ? "PUT" : "POST";
       const url = isEditing
-        ? `http://backend:8000/warehouses/${id}`
+        ? `http://backend:8000/warehouses/by-id/${id}`
         : "http://backend:8000/warehouses/";
 
       const response = await fetchWithAuth(url, {
@@ -100,7 +103,7 @@ export default function WarehouseDetailPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(warehouse),
       });
-
+      if (response.status === 403) throw new Error("Нет доступа к изменению складов")
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.detail || "Не удалось сохранить данные");
@@ -192,9 +195,10 @@ export default function WarehouseDetailPage() {
             </div>
             <div>
               <label htmlFor="manager_id" className="block text-sm font-medium text-gray-700">
-                Менеджера
+                Менеджер *
               </label>
               <select
+                required
                 id="manager_id"
                 name="manager_id"
                 value={warehouse.manager_id}
