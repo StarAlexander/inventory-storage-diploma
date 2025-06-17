@@ -1,3 +1,10 @@
+/*
+Страница просмотра всех организаций.
+
+organizations - организации.
+searchTerm - строка поиска.
+*/
+
 "use client"
 
 import { useState, useEffect } from "react";

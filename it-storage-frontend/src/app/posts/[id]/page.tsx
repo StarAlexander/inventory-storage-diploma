@@ -1,3 +1,10 @@
+/*
+Страница создания/редактирования должности.
+
+post - текущая должность.
+orgs - организации.
+*/
+
 "use client"
 
 import { LoadingSpinner } from "@/components/LoadingSpinner";

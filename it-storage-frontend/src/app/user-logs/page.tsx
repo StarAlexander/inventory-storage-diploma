@@ -1,3 +1,9 @@
+/*
+Страница аудита действий пользователей. 
+
+authLogs - логи авторизации пользователей.
+*/
+
 "use client"
 
 import { LoadingSpinner } from "@/components/LoadingSpinner";

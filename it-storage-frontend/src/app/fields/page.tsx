@@ -1,3 +1,12 @@
+/*
+Страница просмотра всех динамических полей.
+
+fields - поля.
+searchTerm - строка поиска.
+categoryFilter,typFilter - варианты фильтра.
+*/
+
+
 "use client"
 
 import { ConfirmModal } from "@/components/ConfirmModal";

@@ -1,3 +1,9 @@
+"""
+Pydantic-схемы для передачи данных между клиентом и сервером.
+
+"""
+
+
 from datetime import datetime
 from typing import Optional
 

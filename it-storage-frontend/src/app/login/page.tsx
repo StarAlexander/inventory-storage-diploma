@@ -1,3 +1,11 @@
+/*
+Страница авторизации.
+
+username - логин.
+password - пароль. 
+*/
+
+
 "use client"
 
 import { useState } from "react";

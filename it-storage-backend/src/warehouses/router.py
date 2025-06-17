@@ -1,3 +1,12 @@
+"""
+Маршрутизация запросов к модулю управления складом.
+
+app - роутер.
+
+create, list, get, update, delete - методы для работы с соответствующими сущностями (склады, зоны, операции)
+
+"""
+
 import json
 import os
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException

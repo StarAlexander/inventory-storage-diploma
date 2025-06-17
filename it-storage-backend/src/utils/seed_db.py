@@ -1,3 +1,14 @@
+"""
+Заполнение БД данными.
+
+seed_db() - заполняет БД данными.
+
+Используется для тестирования в режиме разработки.
+
+"""
+
+
+
 from datetime import datetime, timedelta
 import random
 import uuid

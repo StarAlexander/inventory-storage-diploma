@@ -1,3 +1,13 @@
+"""
+Маршрутизация запросов к модулю управления оборудованием.
+
+app - роутер.
+
+create, list, get, update, delete - Методы управления соответствующими сущностями.
+
+"""
+
+
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.params import Query

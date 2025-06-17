@@ -1,3 +1,8 @@
+"""
+Pydantic-схемы для передачи данных о ролях между клиентом и сервером.
+
+"""
+
 from datetime import datetime
 from enum import Enum
 from typing import List, Optional

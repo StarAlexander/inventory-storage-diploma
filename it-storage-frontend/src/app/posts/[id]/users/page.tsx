@@ -1,3 +1,10 @@
+/*
+Страница привязки пользователей к должности.
+
+post - текущая должность.
+allUsers - пользователи.
+*/
+
 "use client"
 
 import { LoadingSpinner } from "@/components/LoadingSpinner";

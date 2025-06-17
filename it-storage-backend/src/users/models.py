@@ -1,3 +1,14 @@
+"""
+Модели для сущностей модуля управления пользователями.
+
+User - пользователи.
+UserAudit - аудит действий пользователя.
+AuthLog - аудит авторизации пользователей.
+Post - должности пользователей.
+
+"""
+
+
 from enum import Enum
 from sqlalchemy import JSON, Column, DateTime, Integer, String, ForeignKey, Boolean, TIMESTAMP, Text, func
 from sqlalchemy.orm import relationship

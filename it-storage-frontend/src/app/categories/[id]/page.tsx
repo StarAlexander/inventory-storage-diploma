@@ -1,3 +1,13 @@
+/*
+Страница создания/редактирования оборудования.
+
+category - текущая категория. 
+
+getCategory() - получение категории по id.
+*/
+
+
+
 "use client"
 
 import { CategoryForm } from "@/components/CategoryForm";

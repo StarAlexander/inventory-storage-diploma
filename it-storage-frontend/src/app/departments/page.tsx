@@ -1,3 +1,13 @@
+/*
+Страница просмотра всех подразделений.
+
+departments - подразделения.
+searchTerm - строка поиска.
+*/
+
+
+
+
 "use client"
 
 import { useState, useEffect } from "react";

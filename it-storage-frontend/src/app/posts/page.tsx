@@ -1,3 +1,10 @@
+/*
+Страница просмотра всех должностей.
+
+posts - должности.
+*/
+
+
 "use client"
 
 import { ConfirmModal } from "@/components/ConfirmModal";

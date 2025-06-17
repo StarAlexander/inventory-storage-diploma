@@ -1,3 +1,10 @@
+/*
+Страница создания/редактирования динамического поля.
+
+field - текущее поле.
+*/
+
+
 "use client"
 
 import { FieldForm } from "@/components/FieldForm";

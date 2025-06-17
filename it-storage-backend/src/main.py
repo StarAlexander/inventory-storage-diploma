@@ -1,3 +1,57 @@
+"""
+Выпускная квалификационная работа
+по теме:
+РАЗРАБОТКА ВЕБ-ПРИЛОЖЕНИЯ ДЛЯ УПРАВЛЕНИЯ
+РАБОЧИМИ ПРОЦЕССАМИ И АНАЛИЗА ДАННЫХ 
+СКЛАДСКИХ ПОМЕЩЕНИЙ НА ПРЕДПРИЯТИИ. 
+
+
+Название: Система управления предприятием.
+Разработал: Старченко А.И.
+Группа: ТИП-82.
+Дата и номер версии: 25.05.2025 v1.1.
+Язык: Python, TypeScript.
+Краткое описание: клиент-серверное приложение управления предприятием.
+
+Задание:
+1) написать серверную часть веб-сайта, используя API-фреймворк FastAPI;
+2) написать клиентскую часть веб-сайта, используя веб-фреймворк Next.js;
+3) обеспечить возможность подключения клиента к серверу;
+4) обеспечить возможность управления складом с помощью интерфейса веб-сайта;
+5) обеспечить обработку ошибок с выводом на экран.
+
+
+Использованные страницы:
+/login/ - форма авторизации;
+/categories/ - страница управления категориями оборудования;
+/organizations/ - страница управления организациями;
+/departments/ - страница управления подразделениями организаций;
+/fields/ - страница настройки динамических полей у категорий оборудования;
+/posts/ - страница управления должностями сотрудников;
+/objects/ - страница управления оборудованием;
+/roles/ - страница управления ролями пользователей;
+/to-sign/ - страница одобрения документов;
+/unauthorized/ - страница переадресации при отсутствии авторизации;
+/user-logs/ - страница аудита действий пользователей;
+/users/ - страница управления пользователями;
+/warehouses/ - страница управления складами;
+/warehouses/analytics/ - страница аналитики;
+
+
+
+Данный файл является точкой старта сервера.
+Переменные:
+app - приложение-каркас.
+
+Функции:
+
+lifespan - настройка базы данных при запуске приложения;
+user_audit - автоматическое добавление записи в БД при определенном действии пользователя.
+"""
+
+
+
+
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
 import json
@@ -71,9 +125,13 @@ async def lifespan(app: FastAPI):
                     "password": admin_password,
                     "is_system": True,
                     "is_active": True,
+                    "first_name":"Алексей",
+                    "middle_name":"Иванович",
+                    "last_name":"Петров"
                 }
                 await UserService.create_user(data=UserCreate(**admin_data))
-                await UserService.create_user(data=UserCreate(username="taivallinen",email="starchenckoal@yandex.ru",first_name="Alex",middle_name="Igorevich",last_name="starchencko",phone="+89636303906",password="9001234ABC!"))
+                await UserService.create_user(data=UserCreate(username="taivallinen",email="starchenckoal@yandex.ru",first_name="Александр",middle_name="Игоревич",last_name="Старченко",phone="+89636303906",password="9001234ABC!"))
+                await UserService.create_user(data=UserCreate(username="fixerUser",email="fixer@yandex.ru",first_name="Иван",middle_name="Иванович",last_name="Иванов",phone="+89636303903",password="FixerPassword123!"))
                 await OrganizationService.create_organization(data=OrganizationBase(name="ЦИИР",email="cair@cair-edu.ru"))
                 await OrganizationService.create_organization(data=OrganizationBase(name="СТАНКИН",email="stankin@mail.ru"))
                 await DepartmentService.create_department(data=DepartmentCreate(organization_id=1,name="ЦИИР первый отдел",abbreviation="CAIR-1"))
@@ -92,8 +150,10 @@ async def lifespan(app: FastAPI):
                 await WarehouseService.create_doc_template(data={"name":"move","type":"MOVE"})
                 await WarehouseService.create_doc_template(data={"name":"issue","type":"ISSUE"})
                 await WarehouseService.create_doc_template(data={"name":"write_off","type":"WRITE_OFF"})
-                await PostsService.create_post(PostCreate(name="Менеджер ЦИИР", description="sldfkj",organization_id=1))
+                await PostsService.create_post(PostCreate(name="Менеджер ЦИИР", description="Менеджер управления складом ЦИИР",organization_id=1))
+                await PostsService.create_post(PostCreate(name="Ремонтник ЦИИР",description="Ремонтник ЦИИР",organization_id=1))
                 await PostsService.assign_user_to_post(1,2)
+                await PostsService.assign_user_to_post(2,3)
                 await RoleService.create_role(RoleCreate(name="Менеджер",description="менеджер склада",rights=[{"entity_type":"warehouses","right_type":"read"},{"entity_type":"warehouses","right_type":"create"},{"entity_type":"warehouses","right_type":"update"},{"entity_type":"warehouses","right_type":"delete"},{"entity_type":"warehouse_zones","right_type":"read"},{"entity_type":"warehouse_zones","right_type":"create"},{"entity_type":"warehouse_zones","right_type":"update"},{"entity_type":"warehouse_zones","right_type":"delete"},{"entity_type":"warehouse_transactions","right_type":"read"},{"entity_type":"warehouse_transactions","right_type":"create"},{"entity_type":"warehouse_transactions","right_type":"update"},{"entity_type":"warehouse_transactions","right_type":"delete"},{"entity_type":"warehouse_documents","right_type":"read"},{"entity_type":"warehouse_documents","right_type":"create"},{"entity_type":"warehouse_documents","right_type":"update"},{"entity_type":"warehouse_documents","right_type":"delete"}]))
                 await RoleService.create_role(RoleCreate(name="Модератор",description="Управление инвентарем, информацией об организациях, подразделениях, ролях и пользователях",
                                                          rights=[{"entity_type":"organizations","right_type":"read"},{"entity_type":"organizations","right_type":"create"},{"entity_type":"organizations","right_type":"update"},{"entity_type":"organizations","right_type":"delete"},{"entity_type":"departments","right_type":"read"},{"entity_type":"departments","right_type":"create"},{"entity_type":"departments","right_type":"update"},{"entity_type":"departments","right_type":"delete"},{"entity_type":"categories","right_type":"read"},{"entity_type":"categories","right_type":"create"},{"entity_type":"categories","right_type":"update"},{"entity_type":"categories","right_type":"delete"},{"entity_type":"dynamic_fields","right_type":"read"},{"entity_type":"dynamic_fields","right_type":"create"},{"entity_type":"dynamic_fields","right_type":"update"},{"entity_type":"dynamic_fields","right_type":"delete"},{"entity_type":"objects","right_type":"read"},{"entity_type":"objects","right_type":"create"},{"entity_type":"objects","right_type":"update"},{"entity_type":"objects","right_type":"delete"},{"entity_type":"roles","right_type":"read"},{"entity_type":"roles","right_type":"create"},{"entity_type":"roles","right_type":"update"},{"entity_type":"roles","right_type":"delete"},{"entity_type":"users","right_type":"read"},{"entity_type":"users","right_type":"create"},{"entity_type":"users","right_type":"update"},{"entity_type":"users","right_type":"delete"},{"entity_type":"posts","right_type":"read"},{"entity_type":"posts","right_type":"create"},{"entity_type":"posts","right_type":"update"},{"entity_type":"posts","right_type":"delete"}]))

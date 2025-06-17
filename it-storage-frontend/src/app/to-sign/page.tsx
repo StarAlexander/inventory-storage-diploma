@@ -1,3 +1,10 @@
+/*
+Страница одобрения документов.
+
+documents - документы на одобрение.
+previewContent - документ, выбранный для предпросмотра.
+*/
+
 "use client";
 import { useState, useEffect } from "react";
 import { fetchWithAuth } from "../utils/fetchWithAuth";

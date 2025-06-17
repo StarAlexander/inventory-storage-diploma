@@ -1,3 +1,19 @@
+"""
+Репозитории для каждой сущности предметной области.
+Нужны при работе с БД.
+
+
+Функции:
+get_all() - Возвращает список всех объектов модели.
+get_by_id() - Возвращает объект модели по id
+create() - Создает объект модели.
+update() - Обновляет объект модели по id.
+delete() - Удаляет объект по id.
+load_relationships() - Возвращает объект со всеми связанными сущностями.
+"""
+
+
+
 from functools import wraps
 from typing import Any, Dict, List
 from fastapi import HTTPException

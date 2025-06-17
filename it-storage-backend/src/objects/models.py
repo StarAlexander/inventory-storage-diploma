@@ -1,3 +1,14 @@
+"""
+Модели для сущностей модуля управления оборудованием.
+
+ObjectCategory - категория оборудования.
+DynamicField - динамические поля категорий.
+SelectValue - возможные значения для динамических полей типа "Выпадающий список".
+ObjectDynamicFieldValue - значения динамических полей для конкретных объектов.
+Object - объекты.
+
+"""
+
 from sqlalchemy import JSON, UniqueConstraint, TIMESTAMP, Boolean, Column, Enum, Float, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import relationship
 from src.database import Base

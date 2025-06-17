@@ -1,3 +1,12 @@
+"""
+Модели для сущностей модуля управления ролями.
+
+Right - право.
+Role - роль.
+
+"""
+
+
 from datetime import datetime
 from sqlalchemy import JSON, TIMESTAMP, Column, ForeignKey, Integer, String, Table, Text, func
 from sqlalchemy.orm import relationship,backref

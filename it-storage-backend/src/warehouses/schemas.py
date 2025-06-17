@@ -1,3 +1,9 @@
+"""
+Pydantic-схемы для передачи данных о складах между клиентом и сервером.
+
+"""
+
+
 
 from enum import Enum
 from pydantic import BaseModel, Field

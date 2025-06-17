@@ -1,3 +1,10 @@
+/*
+Страница просмотра всех пользователей.
+
+users - пользователи.
+*/
+
+
 "use client"
 
 import Link from "next/link";

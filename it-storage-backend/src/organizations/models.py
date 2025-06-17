@@ -1,3 +1,10 @@
+"""
+Модели для управления организациями.
+
+Organization - организация.
+
+"""
+
 from sqlalchemy import Column, Integer, String, TIMESTAMP, Text, CheckConstraint, func
 from sqlalchemy.orm import relationship
 from datetime import datetime

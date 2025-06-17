@@ -1,3 +1,12 @@
+/*
+Страница просмотра всех объектов.
+
+objects - объекты.
+searchTerm - строка поиска.
+categoryFilter, statusFilter - варианты фильтра.
+*/
+
+
 "use client"
 
 import { useState, useEffect, useCallback } from "react";

@@ -1,3 +1,11 @@
+"""
+Модели сущностей БД.
+
+Department - подразделение.
+
+"""
+
+
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, TIMESTAMP, func
 from sqlalchemy.orm import relationship
 from src.database import Base

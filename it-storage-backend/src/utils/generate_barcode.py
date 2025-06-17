@@ -1,3 +1,10 @@
+"""
+Генерация штрих-кодов.
+
+generate_barcode() - генерирует штрих-код по указанному инвентарному номеру.
+
+"""
+
 from barcode import Code128
 from barcode.writer import ImageWriter
 from io import BytesIO

@@ -53,12 +53,6 @@ export default function WarehouseDetail() {
         >
           Документы
         </button>
-        <button
-          onClick={() => setActiveTab("reports")}
-          className={`px-4 py-2 ${activeTab === "reports" ? "border-b-2 border-blue-500" : ""}`}
-        >
-          Отчёты
-        </button>
       </div>
 
       {activeTab === "zones" && <ZonesTab warehouseId={params.id as unknown as number} />}

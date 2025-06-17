@@ -1,3 +1,10 @@
+/*
+Страница создания/редактирования организации.
+
+organization - текущая организация.
+*/
+
+
 "use client"
 
 import { useRouter, useParams } from "next/navigation";

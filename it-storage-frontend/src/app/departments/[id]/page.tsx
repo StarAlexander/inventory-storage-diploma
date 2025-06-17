@@ -1,3 +1,12 @@
+/*
+Страница создания/редактирования подразделения.
+
+department - текущее подразделение.
+organizations - список всех организаций.
+*/
+
+
+
 "use client"
 
 import { useRouter, useParams } from "next/navigation";

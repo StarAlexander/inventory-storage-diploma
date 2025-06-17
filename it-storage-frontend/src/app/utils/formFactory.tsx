@@ -1,3 +1,10 @@
+/*
+Страница создания/редактирования роли.
+
+formData - текущая роль.
+permissions - права.
+*/
+
 "use client"
 
 import { useState, useEffect } from "react";

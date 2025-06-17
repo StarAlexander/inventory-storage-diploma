@@ -1,3 +1,8 @@
+"""
+Сервис для манипуляции данными об оборудовании.
+
+"""
+
 from typing import Dict
 
 from sqlalchemy import select

@@ -1,3 +1,8 @@
+"""
+Сервис для манипуляции данными о пользователях.
+
+"""
+
 from datetime import datetime, timedelta
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload

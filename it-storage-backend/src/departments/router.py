@@ -1,3 +1,18 @@
+"""
+Маршрутизация запросов к подразделениям.
+
+app - роутер подразделений.
+
+create_department() - создание подразделения.
+list_departments() - список всех подразделений.
+get_department() - Возвращает подразделение по id.
+update_department() - Обновляет подразделение по id.
+delete_department() - Удаляет подразделение по id.
+
+"""
+
+
+
 from typing import List
 from fastapi import Depends, HTTPException
 from src.departments.schemas import DepartmentCreate, DepartmentSchema

@@ -1,3 +1,14 @@
+"""
+Файл для подключения к БД.
+
+
+engine - движок для создания сессии.
+AsyncSessionLocal - асинхронная сессия подключения к БД.
+Base - основной класс для объектно-ориентированной работы с SQLAlchemy.
+"""
+
+
+
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 from sqlalchemy.orm import declarative_base

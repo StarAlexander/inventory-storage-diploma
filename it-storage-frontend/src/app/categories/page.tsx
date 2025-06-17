@@ -1,3 +1,12 @@
+/*
+Страница просмотра всех категорий оборудования.
+
+categories - категории оборудования.
+searchTerm - строка поиска.
+*/
+
+
+
 "use client"
 
 import { useState, useEffect } from "react";

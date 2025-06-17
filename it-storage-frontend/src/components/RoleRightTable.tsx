@@ -1,3 +1,9 @@
+/*
+Страница просмотра всех ролей.
+
+items - роли.
+*/
+
 "use client"
 
 import Link from "next/link";

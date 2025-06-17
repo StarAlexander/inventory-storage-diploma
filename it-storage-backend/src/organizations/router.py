@@ -1,3 +1,17 @@
+"""
+Маршрутизация запросов к организациям.
+
+app - роутер организаций.
+
+create_organization() - создание организации.
+list_organizations() - список всех организаций.
+get_organization() - Возвращает организацию по id.
+update_organization() - Обновляет организацию по id.
+delete_organization() - Удаляет организацию по id.
+
+"""
+
+
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from src.repositories import check_permission

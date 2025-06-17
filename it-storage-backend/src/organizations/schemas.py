@@ -1,3 +1,8 @@
+"""
+Pydantic-схемы для передачи данных об организациях между клиентом и сервером.
+
+"""
+
 from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 from src.departments.schemas import DepartmentSchema

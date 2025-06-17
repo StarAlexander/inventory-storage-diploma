@@ -1,3 +1,11 @@
+/*
+Модуль авторизации.
+
+authOptions - Настройки авторизации библиотеки next-auth.
+
+*/
+
+
 
 import CredentialsProvider from 'next-auth/providers/credentials'
 
@@ -38,7 +46,6 @@ export const authOptions = {
             if (!userResponse.ok) throw new Error('Failed to fetch user data')
             
             const user = await userResponse.json()
-            console.log(user)
             return {
               ...user,
               accessToken: access_token

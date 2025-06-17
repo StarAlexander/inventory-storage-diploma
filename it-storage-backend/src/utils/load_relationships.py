@@ -1,3 +1,10 @@
+"""
+Утилитарные функции.
+
+load_relationships() - возвращает все связи модели.
+
+"""
+
 from sqlalchemy import inspect
 from sqlalchemy.orm import joinedload
 

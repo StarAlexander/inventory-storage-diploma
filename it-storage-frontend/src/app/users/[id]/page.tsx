@@ -1,3 +1,9 @@
+/*
+Страница создания/редактирования пользователя.
+
+user - текущий пользователь.
+*/
+
 "use client"
 
 import { LoadingSpinner } from "@/components/LoadingSpinner";

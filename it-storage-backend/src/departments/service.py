@@ -1,3 +1,8 @@
+"""
+Сервис для манипуляции данными о подразделениях.
+
+"""
+
 from src.database import AsyncSessionLocal
 from src.departments.schemas import DepartmentCreate
 from src.repositories import DepartmentRepository

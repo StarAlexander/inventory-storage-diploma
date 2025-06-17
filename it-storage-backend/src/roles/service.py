@@ -1,3 +1,8 @@
+"""
+Сервис для манипуляции данными о ролях.
+
+"""
+
 from src.database import AsyncSessionLocal
 from src.repositories import RightRepository, RoleRepository
 from src.roles.schemas import RightCreate, RoleCreate

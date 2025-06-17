@@ -1,3 +1,14 @@
+/*
+Страница создания/редактирования объекта.
+
+object - текущий объект.
+organizations - организации. 
+departments - подразделения.
+categories - категории. 
+dynamicFields - поля.
+*/
+
+
 "use client"
 
 import { useRouter, useParams } from "next/navigation";

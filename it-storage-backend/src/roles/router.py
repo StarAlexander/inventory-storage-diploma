@@ -1,3 +1,17 @@
+"""
+Маршрутизация запросов к ролям.
+
+app - роутер ролей.
+
+create_role() - создание роли.
+list_roles() - список всех ролей.
+get_role() - Возвращает роль по id.
+update_role() - Обновляет роль по id.
+delete_role() - Удаляет роль по id.
+
+"""
+
+
 from typing import List
 from fastapi import Depends, HTTPException,APIRouter
 from sqlalchemy import select

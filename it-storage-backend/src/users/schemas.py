@@ -1,3 +1,9 @@
+"""
+Pydantic-схемы для передачи данных о пользователях между клиентом и сервером.
+
+"""
+
+
 import re
 from datetime import datetime
 from typing import Any, Dict, List, Optional

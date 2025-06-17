@@ -1,17 +1,25 @@
-import asyncio
+"""
+Маршрутизация запросов к модулю управления пользователями.
+
+app - роутер.
+
+create, get, update, delete - методы работы с соответствующими сущностями (пользователи, должности).
+
+
+get_audit_logs, get_auth__logs - получение логов действий пользователей.
+"""
+
 from datetime import datetime
 from dateutil.parser import parse
-import json
-from fastapi.responses import StreamingResponse
 from typing import Optional
-from fastapi import Depends, HTTPException,APIRouter, Query, Request
+from fastapi import Depends, HTTPException,APIRouter, Query
 from sqlalchemy import select
 from src.repositories import check_permission
 from src.utils.get_current_user import get_current_user
 from src.roles.schemas import EntityType, RightType
-from src.users.schemas import AuditLogResponse, PostCreate, UserCreate, UserUpdate
+from src.users.schemas import PostCreate, UserCreate, UserUpdate
 from src.users.service import AuditLogService, UserService, PostsService
-from src.users.models import AuthLog, UserAudit
+from src.users.models import AuthLog
 from src.database import AsyncSessionLocal
 
 

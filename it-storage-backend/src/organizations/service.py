@@ -1,3 +1,8 @@
+"""
+Сервис для манипуляции данными об организациях
+
+"""
+
 from typing import List
 
 from fastapi import HTTPException

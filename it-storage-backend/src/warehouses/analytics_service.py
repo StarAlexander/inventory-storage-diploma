@@ -1,3 +1,13 @@
+"""
+Сервис аналитики по складам.
+
+get_inventory_levels() - кол-во оборудования по складским зонам.
+get_transaction_summary() - возвращает транзакции за последнюю неделю.
+get_lowstock_zones() - возвращает зоны с кол-вом оборудования ниже порога.
+
+"""
+
+
 from datetime import datetime, timedelta
 from sqlalchemy import func
 from sqlalchemy.future import select

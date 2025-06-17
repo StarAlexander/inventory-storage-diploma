@@ -1,4 +1,13 @@
-# src/warehouses/models.py
+"""
+Модели для сущностей модуля управления складом.
+
+Warehouse - склады.
+WarehouseZone - складские зоны.
+WarehouseTransaction - складские операции.
+DocumentTemplate - шаблоны документов.
+WarehouseDocument - складские документы.
+
+"""
 
 from sqlalchemy import Boolean, Column, Integer, String, Enum, ForeignKey, DateTime, Text, BLOB,func
 from sqlalchemy.orm import relationship

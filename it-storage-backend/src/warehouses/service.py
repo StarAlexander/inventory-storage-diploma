@@ -1,3 +1,9 @@
+"""
+Сервис для работы со складами.
+
+"""
+
+
 from datetime import datetime
 import json
 from typing import Optional

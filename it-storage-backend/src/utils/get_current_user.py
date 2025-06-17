@@ -1,3 +1,10 @@
+"""
+Утилитарные функции.
+
+get_current_user() - возвращает текущего пользователя.
+
+"""
+
 from typing import Optional
 
 from fastapi import Request
